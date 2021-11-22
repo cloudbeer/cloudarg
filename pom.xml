@@ -7,6 +7,33 @@
     <groupId>arche.cloud</groupId>
     <artifactId>cloudarg</artifactId>
     <version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>cloudarg</name>
 
-    
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <springboot.version>2.6.0</springboot.version>
+	</properties>
+
+	<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.6.0</version>
+		<relativePath /> 
+	</parent>
+
+	<dependencyManagement>
+		<dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${springboot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+
 </project>
