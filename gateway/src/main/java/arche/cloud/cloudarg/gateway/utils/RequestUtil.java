@@ -54,7 +54,7 @@ public class RequestUtil {
         httpApi.setForbiddenRoles(new String[]{"xyz"});
         httpApi.setBackendHost("http://localhost:8081");
         httpApi.setBackendPath("/abc/test");
-        return httpApi;
+        return null;
     }
 
     public static User getUser(String ticket){
