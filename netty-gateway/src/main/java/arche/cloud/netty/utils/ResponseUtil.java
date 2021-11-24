@@ -1,6 +1,7 @@
 package arche.cloud.netty.utils;
 
 import com.google.gson.Gson;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,11 +25,24 @@ public class ResponseUtil {
         Gson gson = new Gson();
         FullHttpResponse response = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK,
+                status,
                 Unpooled.copiedBuffer(gson.toJson(map), CharsetUtil.UTF_8));
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
-        response.headers().set( "server", "cloudarg");
+        response.headers().set("server", "cloudarg");
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+//        ctx.close();
     }
+
+    public static void echo(ChannelHandlerContext ctx, HttpResponseStatus status, CharSequence contentType, ByteBuf data) {
+        FullHttpResponse response = new DefaultFullHttpResponse(
+                HttpVersion.HTTP_1_1,
+                status,
+                Unpooled.copiedBuffer(data));
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
+        response.headers().set("server", "cloudarg");
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        ctx.close();
+    }
+
 
 }

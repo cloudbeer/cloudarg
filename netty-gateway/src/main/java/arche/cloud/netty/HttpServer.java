@@ -21,15 +21,17 @@ public class HttpServer {
     public static void main(String[] args) throws Exception {
         int port = args.length > 0
                 ? Integer.parseInt(args[0])
-          : 8080;
+                : 8080;
 
+//        System.out.println("Init rpc client...");
+//        ColdBootstrap.init();
         System.out.println("Starting netty server...");
         new HttpServer(port).run();
     }
 
     public void run() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup(10);
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
@@ -40,31 +42,10 @@ public class HttpServer {
             ChannelFuture f = bootstrap.bind(new InetSocketAddress(port)).sync();
             System.out.println("Server start up on port : " + port);
             f.channel().closeFuture().sync();
-        }finally {
+        } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
-//        try {
-//            ServerBootstrap b = new ServerBootstrap();
-//            b.group(bossGroup, workerGroup)
-//                    .channel(NioServerSocketChannel.class)
-//                    .childHandler(new ChannelInitializer<SocketChannel>() {
-//                        @Override
-//                        public void initChannel(SocketChannel ch)
-//                                throws Exception {
-//                            ch.pipeline().addLast(new RequestDecoder(),
-//                                    new ResponseDataEncoder(),
-//                                    new ProcessingHandler());
-//                        }
-//                    }).option(ChannelOption.SO_BACKLOG, 128)
-//                    .childOption(ChannelOption.SO_KEEPALIVE, true);
-//
-//            ChannelFuture f = b.bind(port).sync();
-//            f.channel().closeFuture().sync();
-//        } finally {
-//            workerGroup.shutdownGracefully();
-//            bossGroup.shutdownGracefully();
-//        }
     }
 
 }

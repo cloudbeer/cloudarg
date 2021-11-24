@@ -3,8 +3,8 @@ package arche.cloud.netty.model;
 /**
  * Api 描述
  */
-public class HttpApi {
-    public HttpApi() {
+public class ApiInfo {
+    public ApiInfo() {
         schema = "http";
     }
 

@@ -21,7 +21,14 @@ public class StringUtil {
         return (input == null) || (input.length() == 0);
     }
 
-    public static String getPathName(String uri){
-        return uri.substring(0, uri.indexOf('?'));
+    public static boolean isTextContentType(String contentType){
+        String[] keys = new String[]{"text", "json", "html"};
+        for (String k:keys){
+            if (contentType.contains(k)) {
+                return true;
+            }
+        }
+        return false;
     }
+
 }
