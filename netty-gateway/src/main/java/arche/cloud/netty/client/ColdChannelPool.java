@@ -2,7 +2,6 @@ package arche.cloud.netty.client;
 
 import arche.cloud.netty.model.ApiInfo;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -15,8 +14,6 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.util.AttributeKey;
-
-import java.time.LocalDateTime;
 
 public class ColdChannelPool {
     public static ChannelPoolMap<String, FixedChannelPool> POOLMAP;

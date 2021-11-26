@@ -44,18 +44,12 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         ctx.flush();
     }
 
-
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
-
         req.content().retain();
-//        System.out.println(req.content().toString(CharsetUtil.UTF_8));
         UserRequest uq = RequestUtil.parse(req);
-
         ApiInfo apiInfo = RequestUtil.getApiInfo(uq.getPath(), uq.getMethod());
         User user = null;
-
         if (apiInfo == null) {
             ResponseUtil.echo(ctx, HttpResponseStatus.NOT_FOUND, "Api not found.");
             return;

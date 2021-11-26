@@ -4,12 +4,10 @@ import arche.cloud.netty.model.ApiInfo;
 import arche.cloud.netty.model.User;
 import arche.cloud.netty.model.UserRequest;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.QueryStringDecoder;
-import io.netty.util.CharsetUtil;
 
 import java.net.URI;
 import java.util.List;
