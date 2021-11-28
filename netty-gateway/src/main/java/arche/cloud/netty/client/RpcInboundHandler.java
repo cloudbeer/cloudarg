@@ -28,7 +28,7 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
 
         parentCtx = ctx.channel().attr(DataKeys.PARENT_CONTEXT).get();
         apiInfo = ctx.channel().attr(DataKeys.API_INFO).get();
@@ -56,7 +56,6 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
                             uq.getRequestId(),
                             lastContent.toString(CharsetUtil.UTF_8));
                 } else {
-//                    System.out.println(status + " " + contentType);
                     ResponseUtil.echo(parentCtx, status, contentType, lastContent);
                 }
             }
