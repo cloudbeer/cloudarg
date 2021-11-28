@@ -1,5 +1,6 @@
 package arche.cloud.netty;
 
+import arche.cloud.netty.config.ConfigFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -19,14 +20,28 @@ public class HttpServer {
     }
 
     public static void main(String[] args) throws Exception {
-        int port = args.length > 0
-                ? Integer.parseInt(args[0])
-                : 8080;
+        ConfigFactory.load();
 
-//        System.out.println("Init rpc client...");
-//        ColdBootstrap.init();
-        System.out.println("Starting netty server...");
+//        DBUtil.getApiInfoFromDB("/cloudarg/v1/list-route");
+
+        init();
+    }
+
+    public static void init() throws Exception {
+        int port = ConfigFactory.config.getPort();
+        System.out.println();
+        System.out.println("----------------------");
+        System.out.println("Starting " + ConfigFactory.config.getName() + " server...");
+        System.out.println("Gateway: " + ConfigFactory.config.getPort());
+        System.out.println("Mysql  : " + ConfigFactory.config.getMysql().getHost());
+        System.out.println("Redis  : " + ConfigFactory.config.getRedis().getHost());
+        System.out.println(ConfigFactory.config.getDescription());
+        System.out.println("----------------------");
+        System.out.println();
         new HttpServer(port).run();
+    }
+
+    public static void restart() throws Exception {
     }
 
     public void run() throws Exception {

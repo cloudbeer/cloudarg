@@ -1,5 +1,7 @@
 package arche.cloud.netty.model;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.CharsetUtil;
 
@@ -16,17 +18,13 @@ public class UserRequest {
     private String schema;
     private ByteBuf content;
     private String query;
+    private String requestId;
 
-    public String toString(){
-        return "{" +
-                "method: " + method + ", " +
-                "contentType: " + contentType + ", " +
-                "path: " + path + ", " +
-                "query: " + query + ", " +
-                "content: " + content.toString(CharsetUtil.UTF_8) + ", " +
-                "ticket: " + ticket +
-                "}";
+    public String toString() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
     }
+
     public String getMethod() {
         return method;
     }
@@ -97,5 +95,17 @@ public class UserRequest {
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public String logInfo() {
+        return "request-id:[" + requestId + "] - " + method + " " + path + "?" + query;
     }
 }

@@ -1,5 +1,9 @@
 package arche.cloud.netty;
 
+import arche.cloud.netty.handler.S2LoadRoute;
+import arche.cloud.netty.handler.S1ParseRequest;
+import arche.cloud.netty.handler.S3LoadUser;
+import arche.cloud.netty.handler.S4Checker;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -12,8 +16,20 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel channel) {
         ChannelPipeline pipeline = channel.pipeline();
         pipeline.addLast(new HttpServerCodec());// http 编解码
-        pipeline.addLast("httpAggregator", new HttpObjectAggregator(10 * 1024 * 1024)); // http 消息聚合器                                                                     512*1024为接收的最大contentlength
-        pipeline.addLast(new HttpRequestHandler());// 请求处理器
+        // http 消息聚合器
+        // 512*1024为接收的最大contentlength
+        pipeline.addLast("httpAggregator",
+                new HttpObjectAggregator(512 * 1024)
+        );
+
+        pipeline.addLast(new S1ParseRequest());
+        pipeline.addLast(new S2LoadRoute());
+        pipeline.addLast(new S3LoadUser());
+        pipeline.addLast(new S4Checker());
+
+//        pipeline.addLast("handleRequest", new PortalHandler());
+//        pipeline.addLast("userRequest", new UserHandler());
+//        pipeline.addLast("rpcRequest", new RpcHandler());
 
     }
 }

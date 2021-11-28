@@ -1,9 +1,7 @@
 package arche.cloud.netty.client;
 
-import arche.cloud.netty.model.ApiInfo;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.pool.AbstractChannelPoolMap;
 import io.netty.channel.pool.ChannelPoolHandler;
@@ -13,28 +11,18 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.util.AttributeKey;
 
 public class ColdChannelPool {
     public static ChannelPoolMap<String, FixedChannelPool> POOLMAP;
     public static final Bootstrap BOOTSTRAP = new Bootstrap();
-    public static AttributeKey<ChannelHandlerContext> PARENT_CONTEXT
-            = AttributeKey.newInstance("parentContext");
-
-    public static AttributeKey<ApiInfo> API_INFO
-            = AttributeKey.newInstance("apiInfo");
-
     static {
         BOOTSTRAP.group(new NioEventLoopGroup());
         BOOTSTRAP.channel(NioSocketChannel.class);
-
 
         POOLMAP = new AbstractChannelPoolMap<>() {
 
             @Override
             protected FixedChannelPool newPool(String key) {
-
-
                 ChannelPoolHandler handler = new ChannelPoolHandler() {
                     /**
                      * 使用完channel需要释放才能放入连接池
@@ -44,7 +32,6 @@ public class ColdChannelPool {
                     public void channelReleased(Channel ch) throws Exception {
                         // 刷新管道里的数据
 //                        ch.writeAndFlush(Unpooled.EMPTY_BUFFER); // flush掉所有写回的数据
-
 //                        ColdChannelPool.BOOTSTRAP.attr(ColdChannelPool.PARENT_CONTEXT, null);
 //                        ColdChannelPool.BOOTSTRAP.attr(ColdChannelPool.API_INFO, null);
 //                        System.out.println("channelReleased......");
@@ -70,7 +57,6 @@ public class ColdChannelPool {
                     @Override
                     public void channelAcquired(Channel ch) throws Exception {
 //                        System.out.println(LocalDateTime.now() + " - channelAcquired......");
-
 //                        System.out.println(ch.attr(ColdChannelPool.PARENT_CONTEXT));
                     }
                 };

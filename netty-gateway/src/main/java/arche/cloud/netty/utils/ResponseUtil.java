@@ -13,13 +13,17 @@ import java.util.Map;
 
 public class ResponseUtil {
 
-    public static void echo(ChannelHandlerContext ctx, HttpResponseStatus status, Object data) {
+    public static void echo(ChannelHandlerContext ctx,
+                            HttpResponseStatus status,
+                            String requestId,
+                            Object data) {
         Map<String, Object> map = new HashMap<>();
         if (status == HttpResponseStatus.OK) {
             map.put("success", true);
         } else {
             map.put("success", false);
         }
+        map.put("request_id", requestId);
         map.put("status", status.code());
         map.put("data", data);
         Gson gson = new Gson();
@@ -33,7 +37,10 @@ public class ResponseUtil {
 //        ctx.close();
     }
 
-    public static void echo(ChannelHandlerContext ctx, HttpResponseStatus status, CharSequence contentType, ByteBuf data) {
+    public static void echo(ChannelHandlerContext ctx,
+                            HttpResponseStatus status,
+                            CharSequence contentType,
+                            ByteBuf data) {
         FullHttpResponse response = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1,
                 status,

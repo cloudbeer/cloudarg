@@ -1,6 +1,8 @@
 package arche.cloud.netty.client;
 
-import arche.cloud.netty.model.ApiInfo;
+import arche.cloud.netty.model.DataKeys;
+import arche.cloud.netty.model.Route;
+import arche.cloud.netty.model.UserRequest;
 import arche.cloud.netty.utils.ResponseUtil;
 import arche.cloud.netty.utils.StringUtil;
 import io.netty.buffer.ByteBuf;
@@ -17,9 +19,7 @@ import java.util.Locale;
 public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     ChannelHandlerContext parentCtx = null;
-    ApiInfo apiInfo = null;
-
-
+    Route apiInfo = null;
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -29,19 +29,10 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
-//        if (AttributeKey.exists("parentContext") && parentCtx == null) {
-//            AttributeKey<ChannelHandlerContext> PREV_CONTEXT = AttributeKey.valueOf("parentContext");
-//            Attribute<ChannelHandlerContext> xx = ctx.channel().attr(PREV_CONTEXT);
-//            parentCtx = xx.get();
-//        }
-//        if (AttributeKey.exists("apiInfo") && apiInfo == null) {
-//            AttributeKey<ApiInfo> API_INFO = AttributeKey.valueOf("apiInfo");
-//            Attribute<ApiInfo> xx = ctx.channel().attr(API_INFO);
-//            apiInfo = xx.get();
-//        }
 
-        parentCtx = ctx.channel().attr(ColdChannelPool.PARENT_CONTEXT).get();
-        apiInfo = ctx.channel().attr(ColdChannelPool.API_INFO).get();
+        parentCtx = ctx.channel().attr(DataKeys.PARENT_CONTEXT).get();
+        apiInfo = ctx.channel().attr(DataKeys.API_INFO).get();
+        UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
 
         CharSequence contentType = "application/json";
         HttpResponseStatus status = HttpResponseStatus.OK;
@@ -60,8 +51,10 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
         if (msg instanceof HttpContent content) {
             if (StringUtil.isTextContentType(contentType.toString())) {
                 ByteBuf lastContent = content.content();
-                if (apiInfo.isWrapperResponse()) {
-                    ResponseUtil.echo(parentCtx, HttpResponseStatus.OK, lastContent.toString(CharsetUtil.UTF_8));
+                if (apiInfo.getWrapper() == 1) {
+                    ResponseUtil.echo(parentCtx, HttpResponseStatus.OK,
+                            uq.getRequestId(),
+                            lastContent.toString(CharsetUtil.UTF_8));
                 } else {
 //                    System.out.println(status + " " + contentType);
                     ResponseUtil.echo(parentCtx, status, contentType, lastContent);
