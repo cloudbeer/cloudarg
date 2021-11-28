@@ -143,5 +143,7 @@ module.exports = options => {
 
 ## TODO
 
-- 优化获取 route 和 user 的逻辑：增加 redis
+- 优化获取 route 和 user 的逻辑：增加缓存 redis
 - 增加新功能：各种 pattern
+- 大body传输可能会出错（为处理 512K 以上的传输）
+- 支持 https 访问

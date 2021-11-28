@@ -32,7 +32,7 @@ public class DataUtil {
     }
 
     public static String computeOpenId(String ticket) throws Exception {
-        Ticket ticket1 = null;
+        Ticket ticket1;
         try {
             String ticketJson = new String(decoder.decode(ticket), StandardCharsets.UTF_8);
             Gson gson = new Gson();
@@ -163,6 +163,7 @@ public class DataUtil {
                         b.setPath(rs.getString("path"));
                         b.setPort(rs.getInt("port"));
                         b.setId(rs.getLong("id"));
+                        b.setSchema(rs.getString("schema"));
                         b.setWeight(rs.getInt("weight"));
                     }
                 } catch (SQLException e) {

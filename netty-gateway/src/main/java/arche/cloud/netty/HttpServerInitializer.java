@@ -27,9 +27,6 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new S3LoadUser());
         pipeline.addLast(new S4Checker());
 
-//        pipeline.addLast("handleRequest", new PortalHandler());
-//        pipeline.addLast("userRequest", new UserHandler());
-//        pipeline.addLast("rpcRequest", new RpcHandler());
 
     }
 }
