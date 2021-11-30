@@ -1,13 +1,12 @@
 package arche.cloud.netty.handler;
 
 import arche.cloud.netty.client.RpcClient;
+import arche.cloud.netty.exceptions.Responsable;
 import arche.cloud.netty.model.DataKeys;
 import arche.cloud.netty.model.Route;
 import arche.cloud.netty.model.User;
 import arche.cloud.netty.model.UserRequest;
-import arche.cloud.netty.utils.RBACUtil;
-import arche.cloud.netty.utils.RequestUtil;
-import arche.cloud.netty.utils.ResponseUtil;
+import arche.cloud.netty.utils.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -27,19 +26,19 @@ public class S4Checker extends SimpleChannelInboundHandler<FullHttpRequest> {
         User user = ctx.channel().attr(DataKeys.USER_INFO).get();
 
 
-        if (route.getAuthorizedRoles() != null || route.getForbiddenRoles() != null) {
+        if (!DataUtil.isArrayEmpty( route.getAuthorizedRoles() ) || !DataUtil.isArrayEmpty( route.getForbiddenRoles())) {
 
-            boolean canPass = RBACUtil.pass(
-                    user.getRoles(),
-                    route.getAuthorizedRoles(),
-                    route.getForbiddenRoles());
-
-            if (!canPass) {
-                logger.error( uq.logInfo());
-                ResponseUtil.echo(ctx, HttpResponseStatus.UNAUTHORIZED, uq.getRequestId(), "Not Authorized.");
-
+            try {
+                RBACUtil.pass(
+                        user.getRoles(),
+                        route.getAuthorizedRoles(),
+                        route.getForbiddenRoles());
+            } catch (Responsable e) {
+                e.printStackTrace();
+                e.echo(ctx, uq.getRequestId(), uq.logInfo(), false);
                 return;
             }
+
         }
 
 

@@ -27,7 +27,7 @@ public class RequestUtil {
         if (!headers.isEmpty()) {
             for (CharSequence name : headers.names()) {
                 if (name.toString().toLowerCase(Locale.ROOT).equals("content-type")) {
-                    contentType = headers.get(name).toString();
+                    contentType = headers.get(name);
                     break;
                 }
             }

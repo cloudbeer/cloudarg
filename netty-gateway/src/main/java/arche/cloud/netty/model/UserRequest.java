@@ -9,103 +9,105 @@ import io.netty.util.CharsetUtil;
  * Request from user (browser, app, opeapi)
  */
 public class UserRequest {
-    private String method;
-    private String contentType;
-    private String path;
-    private String ticket;
-    private String host;
-    private int port;
-    private String schema;
-    private ByteBuf content;
-    private String query;
-    private String requestId;
+  private String method;
+  private String contentType;
+  private String path;
+  private String ticket;
+  private String host;
+  private int port;
+  private String schema;
+  private ByteBuf content;
+  private String query;
+  private String requestId;
 
-    public String toString() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(this);
-    }
+  public String toString() {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    return gson.toJson(this);
+  }
 
-    public String getMethod() {
-        return method;
-    }
+  public String getMethod() {
+    return method;
+  }
 
-    public void setMethod(String method) {
-        this.method = method;
-    }
+  public void setMethod(String method) {
+    this.method = method;
+  }
 
-    public String getContentType() {
-        return contentType;
-    }
+  public String getContentType() {
+    return contentType;
+  }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
+  }
 
-    public String getPath() {
-        return path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    public String getTicket() {
-        return ticket;
-    }
+  public String getTicket() {
+    return ticket;
+  }
 
-    public void setTicket(String ticket) {
-        this.ticket = ticket;
-    }
+  public void setTicket(String ticket) {
+    this.ticket = ticket;
+  }
 
-    public ByteBuf getContent() {
-        return content;
-    }
+  public ByteBuf getContent() {
+    return content;
+  }
 
-    public void setContent(ByteBuf content) {
-        this.content = content;
-    }
+  public void setContent(ByteBuf content) {
+    this.content = content;
+  }
 
-    public String getHost() {
-        return host;
-    }
+  public String getHost() {
+    return host;
+  }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
+  public void setHost(String host) {
+    this.host = host;
+  }
 
-    public int getPort() {
-        return port;
-    }
+  public int getPort() {
+    return port;
+  }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
+  public void setPort(int port) {
+    this.port = port;
+  }
 
-    public String getSchema() {
-        return schema;
-    }
+  public String getSchema() {
+    return schema;
+  }
 
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
+  public void setSchema(String schema) {
+    this.schema = schema;
+  }
 
-    public String getQuery() {
-        return query;
-    }
+  public String getQuery() {
+    return query;
+  }
 
-    public void setQuery(String query) {
-        this.query = query;
-    }
+  public void setQuery(String query) {
+    this.query = query;
+  }
 
-    public String getRequestId() {
-        return requestId;
-    }
+  public String getRequestId() {
+    return requestId;
+  }
 
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
+  public void setRequestId(String requestId) {
+    this.requestId = requestId;
+  }
 
-    public String logInfo() {
-        return "request-id:[" + requestId + "] - " + method + " " + path + "?" + query;
-    }
+  public String logInfo() {
+    return "request-id:[" + requestId + "] - " +
+            method + " " + path +
+            ((query != null) ? "?" + query : "");
+  }
 }

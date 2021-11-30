@@ -1,5 +1,6 @@
 package arche.cloud.netty.handler;
 
+import arche.cloud.netty.exceptions.Responsable;
 import arche.cloud.netty.model.DataKeys;
 import arche.cloud.netty.model.Route;
 import arche.cloud.netty.model.UserRequest;
@@ -14,24 +15,25 @@ import org.slf4j.LoggerFactory;
 
 
 public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
-    Logger logger = LoggerFactory.getLogger(S2LoadRoute.class);
+  Logger logger = LoggerFactory.getLogger(S2LoadRoute.class);
 
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
-        req.retain();
-        UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
-        Route route = DataUtil.getRouteInfo(uq.getPath()); // RequestUtil.getApiInfo(uq.getPath(), uq.getMethod());
+  @Override
+  protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
+    req.retain();
+    UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
 
-        if (route == null) {
-            logger.error("{} - {}", uq.logInfo(), "route not found.");
-            ResponseUtil.echo(ctx, HttpResponseStatus.NOT_FOUND, uq.getRequestId(),"route not found: " + uq.getPath());
-            return;
-        }
+    try {
+      Route route = DataUtil.getRouteInfo(uq.getPath());
+      // RequestUtil.getApiInfo(uq.getPath(), uq.getMethod());
 
-        ctx.channel().attr(DataKeys.API_INFO).set(route);
-        ctx.fireChannelRead(req);
+      ctx.channel().attr(DataKeys.API_INFO).set(route);
+      ctx.fireChannelRead(req);
+    } catch (Responsable e) {
+      e.echo(ctx, uq.getRequestId(), uq.logInfo(), false);
+//      e.echo(ctx, uq.getRequestId(), uq.logInfo());
+    }
 //        ctx.pipeline().remove(this);
 
 
-    }
+  }
 }
