@@ -21,27 +21,16 @@ public class HttpServer {
 
     public static void main(String[] args) throws Exception {
         ConfigFactory.load();
-
-//        DBUtil.getApiInfoFromDB("/cloudarg/v1/list-route");
-
         init();
     }
 
     public static void init() throws Exception {
         int port = ConfigFactory.config.getPort();
-        System.out.println();
-        System.out.println("----------------------");
-        System.out.println("Starting " + ConfigFactory.config.getName() + " server...");
-        System.out.println("Gateway: " + ConfigFactory.config.getPort());
-        System.out.println("Mysql  : " + ConfigFactory.config.getMysql().getHost());
-        System.out.println("Redis  : " + ConfigFactory.config.getRedis().getHost());
-        System.out.println(ConfigFactory.config.getDescription());
-        System.out.println("----------------------");
-        System.out.println();
         new HttpServer(port).run();
     }
 
     public static void restart() throws Exception {
+
     }
 
     public void run() throws Exception {
@@ -56,6 +45,17 @@ public class HttpServer {
 
             ChannelFuture f = bootstrap.bind(new InetSocketAddress(port)).sync();
             System.out.println("Server start up on port : " + port);
+
+            System.out.println();
+            System.out.println("----------------------");
+            System.out.println("Starting " + ConfigFactory.config.getName() + " server...");
+            System.out.println("Gateway: " + ConfigFactory.config.getPort());
+            System.out.println("Mysql  : " + ConfigFactory.config.getMysql().getHost());
+            System.out.println("Redis  : " + ConfigFactory.config.getRedis().getHost());
+            System.out.println(ConfigFactory.config.getDescription());
+            System.out.println("----------------------");
+            System.out.println();
+
             f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();

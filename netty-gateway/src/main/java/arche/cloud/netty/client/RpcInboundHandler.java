@@ -1,6 +1,8 @@
 package arche.cloud.netty.client;
 
-import arche.cloud.netty.exceptions.Responsable;
+import java.util.HashMap;
+import java.util.Locale;
+
 import arche.cloud.netty.model.DataKeys;
 import arche.cloud.netty.model.Route;
 import arche.cloud.netty.model.UserRequest;
@@ -13,13 +15,8 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.util.CharsetUtil;
-
-import java.util.HashMap;
-import java.util.Locale;
 
 public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
-
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -30,8 +27,8 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
 
-//    ChannelHandlerContext parentCtx = null;
-//    Route apiInfo = null;
+    // ChannelHandlerContext parentCtx = null;
+    // Route apiInfo = null;
     ChannelHandlerContext parentCtx = ctx.channel().attr(DataKeys.PARENT_CONTEXT).get();
     Route apiInfo = ctx.channel().attr(DataKeys.API_INFO).get();
     UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
@@ -57,24 +54,24 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
     }
 
     if (msg instanceof HttpContent content) {
-//      System.out.println("this is content");
+      // System.out.println("this is content");
       if (StringUtil.isTextContentType(contentType.toString())) {
         ByteBuf lastContent = content.content();
-//        System.out.println(lastContent.toString(CharsetUtil.UTF_8));
+        // System.out.println(lastContent.toString(CharsetUtil.UTF_8));
 
         if (apiInfo.getCors() == 1) {
           headers.put("cors", "true");
         }
         if (apiInfo.getWrapper() == 1) {
           ResponseUtil.wrap(parentCtx, HttpResponseStatus.OK,
-                  headers,
-                  lastContent);
+              headers,
+              lastContent);
         } else {
           headers.put("content-type", contentType.toString());
           ResponseUtil.pass(parentCtx, status, headers, lastContent);
         }
       } else {
-        //TODO
+        // TODO
         ResponseUtil.wrap(parentCtx, status, headers, "非文本返回尚未实现。");
       }
     }

@@ -11,12 +11,21 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class S4Checker extends SimpleChannelInboundHandler<FullHttpRequest> {
     Logger logger = LoggerFactory.getLogger(S2LoadRoute.class);
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        logger.error("pipeline error", cause);
+        ctx.close();
+        // ResponseUtil.wrap(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, headers,
+        // cause.getMessage());
+        // Uncaught exceptions from inbound handlers will propagate up to this handler
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
@@ -25,8 +34,7 @@ public class S4Checker extends SimpleChannelInboundHandler<FullHttpRequest> {
         UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
         User user = ctx.channel().attr(DataKeys.USER_INFO).get();
 
-
-        if (!DataUtil.isArrayEmpty( route.getAuthorizedRoles() ) || !DataUtil.isArrayEmpty( route.getForbiddenRoles())) {
+        if (!DataUtil.isArrayEmpty(route.getAuthorizedRoles()) || !DataUtil.isArrayEmpty(route.getForbiddenRoles())) {
 
             try {
                 RBACUtil.pass(
@@ -40,7 +48,6 @@ public class S4Checker extends SimpleChannelInboundHandler<FullHttpRequest> {
             }
 
         }
-
 
         RpcClient rpcClient = new RpcClient();
         rpcClient.setRoute(route);

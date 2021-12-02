@@ -1,17 +1,13 @@
 package arche.cloud.netty.exceptions;
 
-import arche.cloud.netty.utils.ResponseUtil;
-import com.google.gson.Gson;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
-import io.netty.util.CharsetUtil;
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import arche.cloud.netty.utils.ResponseUtil;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpResponseStatus;
 
 public class Responsable extends Exception {
 
