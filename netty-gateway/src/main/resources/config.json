@@ -1,18 +1,18 @@
 {
-  "name": "drosun-gateway",
-  "description": "This is drosun gateway server\nGrant to cloudbeer",
+  "name": "Cloudarg",
+  "description": "Cloudarg Gateway",
   "port": 8089,
   "accountUrl": "http://localhost:7301/inner/self/info",
   "ticketSecret": "iloveyou",
   "mysql": {
     "host": "localhost",
     "port": 3306,
-    "username": "root",
-    "password": "qiuzhiwu",
-    "database": "daiyu_account"
+    "username": "cloudark",
+    "password": "P@ssword123",
+    "database": "cloudark"
   },
   "redis": {
     "host": "localhost",
-    "port": 6379
+    "port": 8020
   }
 }
