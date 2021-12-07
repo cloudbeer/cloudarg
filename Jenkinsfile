@@ -36,15 +36,19 @@ set -x
     }
     stage('构建镜像并推送到 CODING Docker 制品库') {
       steps {
-        sh '''docker build -t ${DOCKER_REPO}/${DOCKER_NAME}:${ARTIFACT_VERSION} .
+        dir('./netty-gateway') {
+          sh '''mvn clean package
+docker build -t ${DOCKER_REPO}/${DOCKER_NAME}:${ARTIFACT_VERSION} .
 docker push ${DOCKER_REPO}/${DOCKER_NAME}:${ARTIFACT_VERSION}
 '''
+        }
+
       }
     }
   }
   environment {
     DOCKER_REPO = 'arche-docker.pkg.coding.net/arche.cloud/arche-cloud'
-    DOCKER_NAME = 'cloudarling'
+    DOCKER_NAME = 'cloudarg'
     DOCKER_REPO_NAME = 'arche-cloud'
   }
 }
