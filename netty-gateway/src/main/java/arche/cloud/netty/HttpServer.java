@@ -29,10 +29,6 @@ public class HttpServer {
         new HttpServer(port).run();
     }
 
-    public static void restart() throws Exception {
-
-    }
-
     public void run() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup(10);

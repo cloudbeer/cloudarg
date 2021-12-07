@@ -60,7 +60,6 @@ public class DataUtil {
     return StringUtil.toHexString(StringUtil.getSHA(input));
   }
 
-
   public static User getUser(String ticket) throws Responsable {
     try {
       return getUserRemote(ConfigFactory.config.getAccountUrl() + "?ticket=" + ticket);
@@ -74,13 +73,13 @@ public class DataUtil {
     OkHttpClient client = new OkHttpClient();
 
     Request request = new Request.Builder()
-            .url(url)
-            .build();
+        .url(url)
+        .build();
 
     try (Response response = client.newCall(request).execute()) {
-//            assert response.body() != null;
+      // assert response.body() != null;
       String json = Objects.requireNonNull(response.body()).string();
-//            System.out.println(json);
+      // System.out.println(json);
       Gson gson = new Gson();
       UserWrapper resp = gson.fromJson(json, UserWrapper.class);
       if (resp.isSuccess()) {
@@ -101,26 +100,26 @@ public class DataUtil {
   }
 
   public static Route getRouteInfo(String path) throws Responsable {
-    //请准匹配
+
+    String[] paths = path.split("/");
+    int size = paths.length;
+    if (size <= 3) {
+      throw new IllegalRoute();
+    }
+    // 请准匹配
     Route exacRoute = getRouteFromDB(path);
     if (exacRoute == null) {
-      //开始模糊匹配
-      exacRoute = getBestRouteFromDB(path);
+      // 开始模糊匹配
+      exacRoute = getBestRouteFromDB(path, size);
     }
     if (exacRoute == null) {
       throw new RouteNotFound();
     }
-//    System.out.println(exacRoute);
+    // System.out.println(exacRoute);
     return exacRoute;
   }
 
-  public static Route getBestRouteFromDB(String path) throws Responsable {
-    String[] paths = path.split("/");
-    int size = paths.length;
-//    System.out.println(size);
-    if (size <= 3) {
-      throw new IllegalRoute();
-    }
+  public static Route getBestRouteFromDB(String path, int size) throws Responsable {
     String tarPath = path;
     for (int idx = 0; idx < size - 3; idx++) {
       tarPath = tarPath.substring(0, tarPath.lastIndexOf('/'));
@@ -178,7 +177,6 @@ public class DataUtil {
       route.setAuthorizedRoles(aRoles.toArray(String[]::new));
       route.setForbiddenRoles(fRoles.toArray(String[]::new));
 
-
       String sqlSelectBack = "select * from backend where route_id=?";
       PreparedStatement psBackend = conn.prepareStatement(sqlSelectBack);
       psBackend.setLong(1, route.getId());
@@ -223,7 +221,7 @@ public class DataUtil {
     if (backendSize == 1) {
       return backends.get(0);
     }
-    //TODO: 简化了 backend 选择，复杂逻辑日后再做：各种 pattern
+    // TODO: 简化了 backend 选择，复杂逻辑日后再做：各种 pattern
     int[] weights = new int[backendSize];
 
     int idx = 0, preWeight = 0;

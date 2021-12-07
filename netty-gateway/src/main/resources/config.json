@@ -5,14 +5,14 @@
   "accountUrl": "http://localhost:7301/inner/self/info",
   "ticketSecret": "iloveyou",
   "mysql": {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 3306,
     "username": "cloudark",
     "password": "P@ssword123",
     "database": "cloudark"
   },
   "redis": {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 8020
   }
 }
