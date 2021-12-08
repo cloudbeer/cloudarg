@@ -22,13 +22,10 @@ public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     try {
       Route route = DataUtil.getRouteInfo(uq.getPath());
-      // RequestUtil.getApiInfo(uq.getPath(), uq.getMethod());
-
       ctx.channel().attr(DataKeys.API_INFO).set(route);
       ctx.fireChannelRead(req);
     } catch (Responsable e) {
       e.echo(ctx, uq.getRequestId(), uq.logInfo(), false);
-      // e.echo(ctx, uq.getRequestId(), uq.logInfo());
     }
     // ctx.pipeline().remove(this);
 

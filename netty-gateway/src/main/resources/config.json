@@ -2,10 +2,10 @@
   "name": "Cloudarg",
   "description": "Cloudarg Gateway",
   "port": 8089,
-  "accountUrl": "http://localhost:7301/inner/self/info",
+  "accountUrl": "http://47.114.92.162:7301/inner/self/info",
   "ticketSecret": "iloveyou",
   "mysql": {
-    "host": "127.0.0.1",
+    "host": "47.114.92.162",
     "port": 3306,
     "username": "cloudark",
     "password": "P@ssword123",
@@ -13,6 +13,7 @@
   },
   "redis": {
     "host": "127.0.0.1",
-    "port": 8020
+    "port": 8020,
+    "db": 10
   }
 }

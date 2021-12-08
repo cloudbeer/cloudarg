@@ -42,7 +42,7 @@ public class S4Checker extends SimpleChannelInboundHandler<FullHttpRequest> {
                         route.getAuthorizedRoles(),
                         route.getForbiddenRoles());
             } catch (Responsable e) {
-                e.printStackTrace();
+                // e.printStackTrace();
                 e.echo(ctx, uq.getRequestId(), uq.logInfo(), false);
                 return;
             }

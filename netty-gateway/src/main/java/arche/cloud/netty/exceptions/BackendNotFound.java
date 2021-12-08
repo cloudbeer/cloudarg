@@ -4,6 +4,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 
 public class BackendNotFound extends Responsable {
   public BackendNotFound() {
-    super(HttpResponseStatus.NOT_FOUND, "backend not found.");
+    super(HttpResponseStatus.NOT_FOUND, "Backend service not found.");
   }
 }

@@ -1,6 +1,5 @@
 package arche.cloud.netty.utils;
 
-
 import arche.cloud.netty.exceptions.Responsable;
 import arche.cloud.netty.exceptions.NotAuthorized;
 import arche.cloud.netty.model.User;
@@ -20,16 +19,19 @@ public class RBACUtil {
   /**
    * Determine user role can pass
    *
-   * @param myRoles 用户角色
+   * @param myRoles         用户角色
    * @param authorizedRoles route 允许的角色
-   * @param forbiddenRoles route 禁止的角色
+   * @param forbiddenRoles  route 禁止的角色
    */
   public static void pass(String[] myRoles, String[] authorizedRoles, String[] forbiddenRoles) throws Responsable {
+    if (myRoles == null) {
+      throw new NotAuthorized();
+    }
     if (forbiddenRoles != null) {
       for (String r : forbiddenRoles) {
         if (Arrays.asList(myRoles).contains(r)) {
           // Arrays.stream(myRoles).noneMatch(r::equals);
-//                    return false;
+          // return false;
           throw new NotAuthorized();
         }
       }

@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Random;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisCommands;
 
 public class DataUtil {
 
@@ -61,17 +64,43 @@ public class DataUtil {
   }
 
   public static User getUser(String ticket) throws Responsable {
+    String ticketKey = StringUtil.hashKey("t", ticket);
     try {
-      return getUserRemote(ConfigFactory.config.getAccountUrl() + "?ticket=" + ticket);
+      User user = getUserFromRedis(ticketKey);
+      if (user != null) {
+        return user;
+      }
+      user = getUserRemote(ConfigFactory.config.getAccountUrl() + "?ticket=" + ticket);
+      if (user != null) {
+        saveUserToRedis(ticketKey, user);
+        return user;
+      }
+      return null;
     } catch (Exception e) {
       e.printStackTrace();
       throw new NotAuthorized();
     }
   }
 
-  public static User getUserRemote(String url) throws Exception {
-    OkHttpClient client = new OkHttpClient();
+  public static User getUserFromRedis(String ticketKey) {
+    String userValue = fromRedis(ticketKey);
+    if (userValue != null) {
+      System.err.println("Get user from redis");
+      Gson gson = new Gson();
+      return gson.fromJson(userValue, User.class);
+    }
+    return null;
+  }
 
+  private static void saveUserToRedis(String ticketKey, User user) {
+    Gson gson = new Gson();
+    String userValue = gson.toJson(user);
+    saveRedis(ticketKey, userValue, 10);
+  }
+
+  public static User getUserRemote(String url) throws Exception {
+    System.err.println("get User From remote");
+    OkHttpClient client = new OkHttpClient();
     Request request = new Request.Builder()
         .url(url)
         .build();
@@ -106,8 +135,15 @@ public class DataUtil {
     if (size <= 3) {
       throw new IllegalRoute();
     }
+
+    String pathKey = StringUtil.hashKey("p", path);
+    Route exacRoute = getRouteFromRedis(pathKey);
+    if (exacRoute != null) {
+      return exacRoute;
+    }
+
     // 请准匹配
-    Route exacRoute = getRouteFromDB(path);
+    exacRoute = getRouteFromDB(path);
     if (exacRoute == null) {
       // 开始模糊匹配
       exacRoute = getBestRouteFromDB(path, size);
@@ -115,8 +151,26 @@ public class DataUtil {
     if (exacRoute == null) {
       throw new RouteNotFound();
     }
-    // System.out.println(exacRoute);
+
+    saveRouteToRedis(pathKey, exacRoute);
+
     return exacRoute;
+  }
+
+  public static Route getRouteFromRedis(String key) {
+    String userValue = fromRedis(key);
+    if (userValue != null) {
+      System.err.println("Get route from redis");
+      Gson gson = new Gson();
+      return gson.fromJson(userValue, Route.class);
+    }
+    return null;
+  }
+
+  private static void saveRouteToRedis(String key, Route route) {
+    Gson gson = new Gson();
+    String userValue = gson.toJson(route);
+    saveRedis(key, userValue, 0);
   }
 
   public static Route getBestRouteFromDB(String path, int size) throws Responsable {
@@ -239,5 +293,39 @@ public class DataUtil {
       }
     }
     return backends.get(chooseIdx);
+  }
+
+  private static void saveRedis(String key, String value, long expireSeconds) {
+
+    String redisUri = "redis://" + ConfigFactory.config.getRedis().getHost() +
+        ":" + ConfigFactory.config.getRedis().getPort() +
+        "/" + ConfigFactory.config.getRedis().getDb();
+    RedisClient redisClient = RedisClient.create(redisUri);
+    StatefulRedisConnection<String, String> connection = redisClient.connect();
+    RedisCommands<String, String> syncCommands = connection.sync();
+
+    syncCommands.set(key, value);
+    if (expireSeconds > 0) {
+      syncCommands.expire(key, expireSeconds);
+    }
+
+    connection.close();
+    redisClient.shutdown();
+  }
+
+  private static String fromRedis(String key) {
+
+    String redisUri = "redis://" + ConfigFactory.config.getRedis().getHost() +
+        ":" + ConfigFactory.config.getRedis().getPort() +
+        "/" + ConfigFactory.config.getRedis().getDb();
+    RedisClient redisClient = RedisClient.create(redisUri);
+    StatefulRedisConnection<String, String> connection = redisClient.connect();
+    RedisCommands<String, String> syncCommands = connection.sync();
+
+    String val = syncCommands.get(key);
+
+    connection.close();
+    redisClient.shutdown();
+    return val;
   }
 }

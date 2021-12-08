@@ -1,0 +1,173 @@
+
+# @hostCloudarling = http://127.0.0.1:7301
+# @hostCloudarg = http://localhost:7302
+@hostGateway = http://localhost:8089
+
+@hostCloudarling = http://47.114.92.162:7301
+@hostCloudarg = http://47.114.92.162:7302
+# @hostGateway = http://47.114.92.162:8089
+
+@ticketAdmin=eyJvcGVuX2lkIjoiOWU4ZDVlMzMtOGIyMC00NTQ0LWIxYTAtMmVjMTY2MWJkNTU2IiwiZXhwaXJlc19pbiI6MTE1NjYyMDgyMzAwLCJzaWduIjoiMmJjOWI0YmI5YjgxOGU2YzE2MGYwMDNkNDc1NGI4MjFmMTJjODM1OTJhNmVmMDNlNmQ5NTRhY2NhZjA0ZDI1ZCJ9
+
+@ticketNormal=eyJvcGVuX2lkIjoiMzdmOWU3ZWMtZjEyZS00ZjAyLTkzMDctZGU1MWVkNTk0YTRkIiwiZXhwaXJlc19pbiI6MTE1NjYyMDgyMzAwLCJzaWduIjoiMjBlNGEwMDFjYjcwYzI5YjU5ODZiNmE2ZmQwYzIwNzhkNjAxZTM0MjQ4MjUwN2M4NTFiODMzM2ZmZmZmMTFkOSJ9
+
+### 获取
+GET {{hostGateway}}/cloudarg/_/admin/route/detail/1
+Authorization: bearer {{ticketAdmin}}
+
+
+### 登陆 cloudarling 获取 ticket
+POST {{hostGateway}}/cloudarling/_/open/account/login  HTTP/1.1
+Content-Type: application/json
+
+{
+    "passport": "chuchur@qq.com",
+    "password": "abcd!@#$",
+    "expires_in": 115662082300
+}
+
+### 登陆 cloudarling 获取 ticket
+POST {{hostGateway}}/cloudarling/_/open/account/login  HTTP/1.1
+Content-Type: application/json
+
+{
+    "passport": "cloudbeer",
+    "password": "zhwell",
+    "expires_in": 115662082300
+}
+
+
+### 获取角色
+GET {{hostCloudarling}}/inner/role/list
+
+### 用户登录
+GET {{hostCloudarling}}/inner/self/info?ticket={{ticket}} HTTP/1.1
+
+### 用户登录
+GET {{hostGateway}}/cloudarg/v1/list-route?__ticket={{ticket}} HTTP/1.1
+
+
+### 获取用户信息 /inner/self/detail
+GET {{hostCloudarling}}/inner/self/detail HTTP/1.1
+__cloudarg_open_id__: 5e58e016-bb37-4f40-899d-67bfcccd5caf
+
+###
+GET {{hostCloudarling}}/inner/self/roles HTTP/1.1
+__cloudarg_open_id__: 5e58e016-bb37-4f40-899d-67bfcccd5caf
+
+
+###
+GET http://localhost:8081/inner/self/detail HTTP/1.1
+__cloudarg-open-id__: 5e58e016-bb37-4f40-899d-67bfcccd5caf
+
+
+
+### 保存项目
+POST {{hostCloudarg}}/inner/project/save  HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "cloudarg",
+    "title": "网关系统"
+}
+
+
+### 保存路由
+POST {{hostCloudarg}}/inner/route/save  HTTP/1.1
+Content-Type: application/json
+
+{
+    "path": "/list-route",
+    "full_path": "/cloudarg/_/list-route",
+    "title": "列出路由",
+    "project_id": 1,
+    "version": "_",
+    "description": "列出路由"
+}
+###
+POST {{hostCloudarg}}/inner/route/save  HTTP/1.1
+Content-Type: application/json
+
+{
+    "path": "/list-route",
+    "title": "列出路由版本2",
+    "project_id": 1,
+    "version": "v3",
+    "description": "列出路由"
+}
+
+
+###
+POST {{hostCloudarg}}/inner/route/delete  HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": 2
+}
+
+
+
+### list route
+GET {{hostCloudarg}}/inner/route/list
+
+
+### list route
+GET http://localhost:8081/inner/route/list HTTP/1.1
+powered: 中文
+
+
+### list route detail
+GET {{hostCloudarg}}/inner/route/detail/1
+
+
+
+### 保存后端服务
+POST {{hostCloudarg}}/inner/backend/save  HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": 0,
+    "host": "localhost",
+    "port": 8081,
+    "schema": "http",
+    "route_id": 3,
+    "env": "prod",
+    "weight": 100,
+    "path": "/inner/role/list"
+
+}
+
+###
+POST {{hostCloudarg}}/inner/backend/save  HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": 2,
+    "path": "/inner/route/list"
+}
+
+### list backend
+GET {{hostCloudarg}}/inner/backend/list
+
+
+### 后端服务授权
+POST {{hostCloudarg}}/inner/route-role/save  HTTP/1.1
+Content-Type: application/json
+
+{
+    "route_id": 1,
+    "role": "admin"
+}
+###
+POST {{hostCloudarg}}/inner/route-role/save  HTTP/1.1
+Content-Type: application/json
+
+{
+    "route_id": 1,
+    "role": "banned",
+    "type": 2
+}
+
+### list roles
+GET {{hostCloudarg}}/inner/route-role/list

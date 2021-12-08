@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
+import java.util.zip.CRC32;
 
 public class StringUtil {
     public static String toLowerCase(CharSequence input, String defaultValue) {
@@ -27,9 +28,9 @@ public class StringUtil {
         return (input == null) || (input.length() == 0);
     }
 
-    public static boolean isTextContentType(String contentType){
-        String[] keys = new String[]{"text", "json", "html"};
-        for (String k:keys){
+    public static boolean isTextContentType(String contentType) {
+        String[] keys = new String[] { "text", "json", "html" };
+        for (String k : keys) {
             if (contentType.contains(k)) {
                 return true;
             }
@@ -60,5 +61,15 @@ public class StringUtil {
         }
 
         return hexString.toString();
+    }
+
+    public static long crc32(String input) {
+        CRC32 crc32 = new CRC32();
+        crc32.update(input.getBytes());
+        return crc32.getValue();
+    }
+
+    public static String hashKey(String prefix, String input) {
+        return prefix + crc32(input) + input.hashCode();
     }
 }
