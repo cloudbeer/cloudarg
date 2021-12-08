@@ -85,7 +85,7 @@ public class DataUtil {
   public static User getUserFromRedis(String ticketKey) {
     String userValue = fromRedis(ticketKey);
     if (userValue != null) {
-      System.err.println("Get user from redis");
+      // System.err.println("Get user from redis");
       Gson gson = new Gson();
       return gson.fromJson(userValue, User.class);
     }
@@ -99,7 +99,7 @@ public class DataUtil {
   }
 
   public static User getUserRemote(String url) throws Exception {
-    System.err.println("get User From remote");
+    // System.err.println("get User From remote");
     OkHttpClient client = new OkHttpClient();
     Request request = new Request.Builder()
         .url(url)
@@ -160,7 +160,7 @@ public class DataUtil {
   public static Route getRouteFromRedis(String key) {
     String userValue = fromRedis(key);
     if (userValue != null) {
-      System.err.println("Get route from redis");
+      // System.err.println("Get route from redis");
       Gson gson = new Gson();
       return gson.fromJson(userValue, Route.class);
     }

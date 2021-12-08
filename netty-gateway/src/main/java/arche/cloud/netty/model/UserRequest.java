@@ -3,7 +3,6 @@ package arche.cloud.netty.model;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.netty.buffer.ByteBuf;
-import io.netty.util.CharsetUtil;
 
 /**
  * Request from user (browser, app, opeapi)
@@ -107,7 +106,7 @@ public class UserRequest {
 
   public String logInfo() {
     return "request-id:[" + requestId + "] - " +
-            method + " " + path +
-            ((query != null) ? "?" + query : "");
+        method + " " + path +
+        ((query != null) ? "?" + query : "");
   }
 }
