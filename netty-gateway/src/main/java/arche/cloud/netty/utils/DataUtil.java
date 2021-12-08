@@ -315,9 +315,16 @@ public class DataUtil {
 
   private static String fromRedis(String key) {
 
-    String redisUri = "redis://" + ConfigFactory.config.getRedis().getHost() +
+    String redisUri = "redis://";
+    String password = ConfigFactory.config.getRedis().getPassword();
+    if (password != null && password.length() > 0) {
+      redisUri += password + "@";
+    }
+    redisUri += ConfigFactory.config.getRedis().getHost() +
         ":" + ConfigFactory.config.getRedis().getPort() +
         "/" + ConfigFactory.config.getRedis().getDb();
+    System.err.println(redisUri);
+
     RedisClient redisClient = RedisClient.create(redisUri);
     StatefulRedisConnection<String, String> connection = redisClient.connect();
     RedisCommands<String, String> syncCommands = connection.sync();

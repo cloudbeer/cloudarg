@@ -12,6 +12,7 @@
     "database": "cloudark"
   },
   "redis": {
+    "password": "zhwell",
     "host": "127.0.0.1",
     "port": 8020,
     "db": 10
