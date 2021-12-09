@@ -21,7 +21,7 @@ public class S1ParseRequest extends SimpleChannelInboundHandler<FullHttpRequest>
         UserRequest uq = RequestUtil.parse(req);
         uq.setRequestId(UUID.randomUUID().toString());
 
-        System.out.println(uq);
+        logger.info(uq.logInfo());
 
         ctx.channel().attr(DataKeys.REQUEST_INFO).set(uq);
         ctx.fireChannelRead(req);

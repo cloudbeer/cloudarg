@@ -12,7 +12,7 @@
 @ticketNormal=eyJvcGVuX2lkIjoiMzdmOWU3ZWMtZjEyZS00ZjAyLTkzMDctZGU1MWVkNTk0YTRkIiwiZXhwaXJlc19pbiI6MTE1NjYyMDgyMzAwLCJzaWduIjoiMjBlNGEwMDFjYjcwYzI5YjU5ODZiNmE2ZmQwYzIwNzhkNjAxZTM0MjQ4MjUwN2M4NTFiODMzM2ZmZmZmMTFkOSJ9
 
 ### 获取
-GET {{hostGateway}}/cloudarg/_/admin/route/detail/1
+GET {{hostGateway}}/cloudarg/_/admin/route/detail/2
 Authorization: bearer {{ticketAdmin}}
 
 

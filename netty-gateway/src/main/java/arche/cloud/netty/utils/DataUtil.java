@@ -2,6 +2,7 @@ package arche.cloud.netty.utils;
 
 import arche.cloud.netty.config.ConfigFactory;
 import arche.cloud.netty.db.MysqlDataSource;
+import arche.cloud.netty.db.RedisUtil;
 import arche.cloud.netty.exceptions.*;
 import arche.cloud.netty.model.*;
 import com.google.gson.Gson;
@@ -23,9 +24,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Random;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
 
 public class DataUtil {
 
@@ -88,7 +86,7 @@ public class DataUtil {
   }
 
   public static User getUserFromRedis(String ticketKey) {
-    String userValue = fromRedis(ticketKey);
+    String userValue = RedisUtil.fromRedis(ticketKey);
     if (userValue != null) {
       // System.err.println("Get user from redis");
       Gson gson = new Gson();
@@ -100,7 +98,7 @@ public class DataUtil {
   private static void saveUserToRedis(String ticketKey, User user) {
     Gson gson = new Gson();
     String userValue = gson.toJson(user);
-    saveRedis(ticketKey, userValue, 7200);
+    RedisUtil.saveRedis(ticketKey, userValue, 7200);
   }
 
   public static User getUserRemote(String url) throws Exception {
@@ -163,7 +161,7 @@ public class DataUtil {
   }
 
   public static Route getRouteFromRedis(String key) {
-    String userValue = fromRedis(key);
+    String userValue = RedisUtil.fromRedis(key);
     if (userValue != null) {
       // System.err.println("Get route from redis");
       Gson gson = new Gson();
@@ -172,10 +170,19 @@ public class DataUtil {
     return null;
   }
 
+  /**
+   * 将用户访问的 route 加入缓存
+   * 
+   * 
+   * @param key
+   * @param route
+   */
   private static void saveRouteToRedis(String key, Route route) {
     Gson gson = new Gson();
     String userValue = gson.toJson(route);
-    saveRedis(key, userValue, 3600);
+    RedisUtil.saveRedis(key, userValue, 0);
+    // 反向存储缓存，将 DB 中的 route 的使用到的 key 存储在缓存中。方便更新路由配置的时候可以清理缓存。
+    RedisUtil.append("r-" + route.getId(), key, 0);
   }
 
   public static Route getBestRouteFromDB(String path, int size) throws Responsable {
@@ -303,45 +310,4 @@ public class DataUtil {
     return backends.get(chooseIdx);
   }
 
-  private static String getRedisUrl() {
-
-    String redisUri = "redis://";
-    String password = ConfigFactory.config.getRedis().getPassword();
-    if (password != null && password.length() > 0) {
-      redisUri += password + "@";
-    }
-    redisUri += ConfigFactory.config.getRedis().getHost() +
-        ":" + ConfigFactory.config.getRedis().getPort() +
-        "/" + ConfigFactory.config.getRedis().getDb();
-    return redisUri;
-  }
-
-  private static void saveRedis(String key, String value, long expireSeconds) {
-
-    RedisClient redisClient = RedisClient.create(getRedisUrl());
-    StatefulRedisConnection<String, String> connection = redisClient.connect();
-    RedisCommands<String, String> syncCommands = connection.sync();
-
-    syncCommands.set(key, value);
-    if (expireSeconds > 0) {
-      syncCommands.expire(key, expireSeconds);
-    }
-
-    connection.close();
-    redisClient.shutdown();
-  }
-
-  private static String fromRedis(String key) {
-    RedisClient redisClient = RedisClient.create(getRedisUrl());
-    StatefulRedisConnection<String, String> connection = redisClient.connect();
-    RedisCommands<String, String> syncCommands = connection.sync();
-
-    String val = syncCommands.get(key);
-
-    // System.err.println("[redis] " + key + ": " + val);
-
-    connection.close();
-    redisClient.shutdown();
-    return val;
-  }
 }

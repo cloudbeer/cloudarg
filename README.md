@@ -148,10 +148,37 @@ module.exports = options => {
 }
 ```
 
+## 缓存 redis 规则
+
+### user
+用户缓存 key 规则如下， value 是 User 的 Json 序列化
+
+```
+"t" + hashCode(ticket) + crc32(ticket) =  serialize(User)
+```
+
+
+### route
+
+用户 path 缓存 key 规则如下， value 是 Route 的 Json 序列化
+
+```
+"p" + hashCode(path) + crc32(path) = serialize(Route)
+```
+
+同时，将使用到 Route 的 path 的 key 缓存
+
+```
+"r" + routeId = append(routeKey)
+```
+
+当 route 配置更新的时候，将同时删除相关 的 r 和 p 。
+
+
+
 
 ## TODO
 
-- 优化获取 route 和 user 的逻辑：增加缓存 redis
 - 增加新功能：各种 pattern
 - 大body传输可能会出错（未处理 512K 以上的传输）
 - 当前不支持 https 访问内部服务
