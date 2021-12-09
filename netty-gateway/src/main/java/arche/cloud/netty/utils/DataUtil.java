@@ -9,6 +9,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +28,8 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 
 public class DataUtil {
+
+  static Logger logger = LoggerFactory.getLogger(DataUtil.class);
 
   public static Base64.Decoder decoder;
 
@@ -77,7 +81,8 @@ public class DataUtil {
       }
       return null;
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Get user exception.", e);
+      // e.printStackTrace();
       throw new NotAuthorized();
     }
   }
@@ -95,7 +100,7 @@ public class DataUtil {
   private static void saveUserToRedis(String ticketKey, User user) {
     Gson gson = new Gson();
     String userValue = gson.toJson(user);
-    saveRedis(ticketKey, userValue, 10);
+    saveRedis(ticketKey, userValue, 7200);
   }
 
   public static User getUserRemote(String url) throws Exception {
@@ -170,7 +175,7 @@ public class DataUtil {
   private static void saveRouteToRedis(String key, Route route) {
     Gson gson = new Gson();
     String userValue = gson.toJson(route);
-    saveRedis(key, userValue, 0);
+    saveRedis(key, userValue, 3600);
   }
 
   public static Route getBestRouteFromDB(String path, int size) throws Responsable {
@@ -185,7 +190,7 @@ public class DataUtil {
     return null;
   }
 
-  public static Route getRouteFromDB(String path) {
+  public static Route getRouteFromDB(String path) throws Responsable {
     try (Connection conn = MysqlDataSource.getConnection()) {
       Route route = null;
       String sqlSelectRoute = "select * from v_route_project where path_hash=CRC32(?)";
@@ -202,8 +207,9 @@ public class DataUtil {
           route.setCors(rs.getInt("cors"));
         }
         rs.close();
-      } catch (SQLException e) {
-        e.printStackTrace();
+      } catch (SQLException ex) {
+        ex.printStackTrace();
+        throw new Database(ex.getLocalizedMessage());
       }
       if (route == null) {
         return null;
@@ -226,6 +232,7 @@ public class DataUtil {
         }
       } catch (SQLException e) {
         e.printStackTrace();
+        throw new Database(e.getLocalizedMessage());
       }
       psRouteRoles.close();
       route.setAuthorizedRoles(aRoles.toArray(String[]::new));
@@ -252,17 +259,18 @@ public class DataUtil {
           b.setSchema(rs.getString("schema"));
           b.setWeight(rs.getInt("weight"));
         }
-      } catch (SQLException e) {
-        e.printStackTrace();
+      } catch (SQLException e2) {
+        e2.printStackTrace();
+        throw new Database(e2.getLocalizedMessage());
       }
       psBackend.close();
 
       conn.close();
       return route;
-    } catch (SQLException e) {
-      e.printStackTrace();
+    } catch (SQLException e3) {
+      e3.printStackTrace();
+      throw new Database(e3.getLocalizedMessage());
     }
-    return null;
   }
 
   public static Backend chooseBackend(Route route, UserRequest userRequest) throws Responsable {
@@ -295,12 +303,22 @@ public class DataUtil {
     return backends.get(chooseIdx);
   }
 
-  private static void saveRedis(String key, String value, long expireSeconds) {
+  private static String getRedisUrl() {
 
-    String redisUri = "redis://" + ConfigFactory.config.getRedis().getHost() +
+    String redisUri = "redis://";
+    String password = ConfigFactory.config.getRedis().getPassword();
+    if (password != null && password.length() > 0) {
+      redisUri += password + "@";
+    }
+    redisUri += ConfigFactory.config.getRedis().getHost() +
         ":" + ConfigFactory.config.getRedis().getPort() +
         "/" + ConfigFactory.config.getRedis().getDb();
-    RedisClient redisClient = RedisClient.create(redisUri);
+    return redisUri;
+  }
+
+  private static void saveRedis(String key, String value, long expireSeconds) {
+
+    RedisClient redisClient = RedisClient.create(getRedisUrl());
     StatefulRedisConnection<String, String> connection = redisClient.connect();
     RedisCommands<String, String> syncCommands = connection.sync();
 
@@ -314,22 +332,13 @@ public class DataUtil {
   }
 
   private static String fromRedis(String key) {
-
-    String redisUri = "redis://";
-    String password = ConfigFactory.config.getRedis().getPassword();
-    if (password != null && password.length() > 0) {
-      redisUri += password + "@";
-    }
-    redisUri += ConfigFactory.config.getRedis().getHost() +
-        ":" + ConfigFactory.config.getRedis().getPort() +
-        "/" + ConfigFactory.config.getRedis().getDb();
-    System.err.println(redisUri);
-
-    RedisClient redisClient = RedisClient.create(redisUri);
+    RedisClient redisClient = RedisClient.create(getRedisUrl());
     StatefulRedisConnection<String, String> connection = redisClient.connect();
     RedisCommands<String, String> syncCommands = connection.sync();
 
     String val = syncCommands.get(key);
+
+    // System.err.println("[redis] " + key + ": " + val);
 
     connection.close();
     redisClient.shutdown();

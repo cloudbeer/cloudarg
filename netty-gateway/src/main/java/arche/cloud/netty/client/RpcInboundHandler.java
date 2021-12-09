@@ -71,7 +71,7 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
           ResponseUtil.pass(parentCtx, status, headers, lastContent);
         }
       } else {
-        // TODO
+        // TODO 非文本返回尚未实现。
         ResponseUtil.wrap(parentCtx, status, headers, "非文本返回尚未实现。");
       }
     }

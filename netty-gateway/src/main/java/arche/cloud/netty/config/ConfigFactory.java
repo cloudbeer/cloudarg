@@ -1,12 +1,10 @@
 package arche.cloud.netty.config;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
-
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+
+import com.google.gson.Gson;
 
 public class ConfigFactory {
     public static Config config;
