@@ -129,7 +129,6 @@ __request_id__: 8cc4a0a2-11ef-4985-9435-111d70398b2a
 在 cloudoll 的 auth 中间件获取用户和 request_id：
 
 ```js
-
 const cloudoll = require("cloudoll");
 module.exports = options => {
   const auth = async (ctx, next) => {
@@ -151,6 +150,7 @@ module.exports = options => {
 ## 缓存 redis 规则
 
 ### user
+
 用户缓存 key 规则如下， value 是 User 的 Json 序列化
 
 ```
