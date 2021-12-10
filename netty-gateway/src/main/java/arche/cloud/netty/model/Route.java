@@ -12,81 +12,93 @@ import java.util.ArrayList;
  *
  * */
 public class Route {
-    public Route(){
+    public Route() {
         backends = new ArrayList<>();
     }
 
-    public String toString(){
+    public String toString() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return  gson.toJson(this);
+        return gson.toJson(this);
     }
 
     /** 编号 */
     private Long id;
-    public Long getId(){
+
+    public Long getId() {
         return this.id;
     }
+
     public void setId(Long _id) {
-        this.id =  _id;
+        this.id = _id;
     }
 
     /** 标题 */
     private String title;
-    public String getTitle(){
+
+    public String getTitle() {
         return this.title;
     }
-    public void setTitle(String _title) {
-        this.title =  _title;
-    }
 
+    public void setTitle(String _title) {
+        this.title = _title;
+    }
 
     /** 描述 */
     private String description;
-    public String getDescription(){
+
+    public String getDescription() {
         return this.description;
     }
+
     public void setDescription(String _description) {
-        this.description =  _description;
+        this.description = _description;
     }
 
     /** 项目 */
     @SerializedName("project_name")
     private String projectName;
-    public String getProjectName(){
+
+    public String getProjectName() {
         return this.projectName;
     }
+
     public void setProjectName(String _projectName) {
-        this.projectName =  _projectName;
+        this.projectName = _projectName;
     }
 
     /** 版本 */
     private String version;
-    public String getVersion(){
+
+    public String getVersion() {
         return this.version;
     }
+
     public void setVersion(String _version) {
-        this.version =  _version;
+        this.version = _version;
     }
 
     /** 路径 */
     private String path;
-    public String getPath(){
+
+    public String getPath() {
         return this.path;
     }
+
     public void setPath(String _path) {
-        this.path =  _path;
+        this.path = _path;
     }
 
     /** 完整路径 */
     @SerializedName("full_path")
     private String fullPath;
-    public String getFullPath(){
+
+    public String getFullPath() {
         return this.fullPath;
     }
-    public void setFullPath(String _fullPath) {
-        this.fullPath =  _fullPath;
-    }
 
+    public void setFullPath(String _fullPath) {
+        this.fullPath = _fullPath;
+    }
 
     /**
      * 允许的角色
@@ -136,6 +148,17 @@ public class Route {
         this.wrapper = wrapper;
     }
 
+    /** qps */
+    private Integer qps;
+
+    public Integer getQps() {
+        return this.qps;
+    }
+
+    public void setQps(Integer _qps) {
+        this.qps = _qps;
+    }
+
     private ArrayList<Backend> backends;
 
     public ArrayList<Backend> getBackends() {
@@ -145,7 +168,5 @@ public class Route {
     public void setBackends(ArrayList<Backend> backends) {
         this.backends = backends;
     }
+
 }
-
-
-
