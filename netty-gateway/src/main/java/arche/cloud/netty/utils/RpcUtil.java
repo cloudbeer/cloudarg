@@ -7,6 +7,10 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
 public class RpcUtil {
+    private RpcUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static <V> void access(
             String host,
             int port,

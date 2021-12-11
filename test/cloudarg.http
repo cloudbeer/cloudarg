@@ -16,6 +16,19 @@ GET {{hostGateway}}/cloudarg/_/admin/route/detail/2
 Authorization: bearer {{ticketAdmin}}
 
 
+GET {{hostGateway}}/cloudarg/_/admin/route/save HTTP/1.1
+Authorization: bearer {{ticketAdmin}}
+
+
+{
+    "path": "/metrics",
+    "title": "Metrics",
+    "project_id": 2,
+    "version": "_",
+    "description": ""
+}
+
+
 ### 登陆 cloudarling 获取 ticket
 POST {{hostGateway}}/cloudarling/_/open/account/login  HTTP/1.1
 Content-Type: application/json

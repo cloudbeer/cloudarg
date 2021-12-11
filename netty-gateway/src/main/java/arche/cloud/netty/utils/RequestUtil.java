@@ -13,6 +13,10 @@ import java.util.Locale;
 import java.util.Map;
 
 public class RequestUtil {
+    private RequestUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * 从一个请求中获取必要的参数
      *

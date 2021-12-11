@@ -27,287 +27,290 @@ import java.util.Random;
 
 public class DataUtil {
 
-  static Logger logger = LoggerFactory.getLogger(DataUtil.class);
-
-  public static Base64.Decoder decoder;
-
-  static {
-    decoder = Base64.getDecoder();
-  }
-
-  public static String computeOpenId(String ticket) throws Exception {
-    Ticket ticket1;
-    try {
-      String ticketJson = new String(decoder.decode(ticket), StandardCharsets.UTF_8);
-      Gson gson = new Gson();
-      ticket1 = gson.fromJson(ticketJson, Ticket.class);
-    } catch (Exception ex) {
-      throw new Exception("authorized failed.");
-    }
-    String sign = ticket1.getSign();
-    long expiresIn = ticket1.getExpiresIn();
-    String openId = ticket1.getOpenId();
-    long datetime = System.currentTimeMillis();
-    if (datetime > expiresIn * 1000) {
-      throw new Exception("ticket expired.");
-    }
-    String src = "{\"open_id\":\"" + openId + "\",\"expires_in\":" + expiresIn + "}";
-    String cSign = computeSign(src + ConfigFactory.config.getTicketSecret());
-    if (!sign.equals(cSign)) {
-      throw new Exception("authorized failed.");
+    private DataUtil() {
+        throw new IllegalStateException("Utility class");
     }
 
-    return openId;
-  }
+    static Logger logger = LoggerFactory.getLogger(DataUtil.class);
 
-  @NotNull
-  public static String computeSign(String input) throws NoSuchAlgorithmException {
-    return StringUtil.toHexString(StringUtil.getSHA(input));
-  }
+    public static Base64.Decoder decoder;
 
-  public static User getUser(String ticket) throws Responsable {
-    String ticketKey = StringUtil.hashKey("t", ticket);
-    try {
-      User user = getUserFromRedis(ticketKey);
-      if (user != null) {
-        return user;
-      }
-      user = getUserRemote(ConfigFactory.config.getAccountUrl() + "?ticket=" + ticket);
-      if (user != null) {
-        saveUserToRedis(ticketKey, user);
-        return user;
-      }
-      return null;
-    } catch (Exception e) {
-      logger.error("Get user exception.", e);
-      // e.printStackTrace();
-      throw new NotAuthorized();
-    }
-  }
-
-  public static User getUserFromRedis(String ticketKey) {
-    String userValue = RedisUtil.fromRedis(ticketKey);
-    if (userValue != null) {
-      // System.err.println("Get user from redis");
-      Gson gson = new Gson();
-      return gson.fromJson(userValue, User.class);
-    }
-    return null;
-  }
-
-  private static void saveUserToRedis(String ticketKey, User user) {
-    Gson gson = new Gson();
-    String userValue = gson.toJson(user);
-    RedisUtil.saveRedis(ticketKey, userValue, 7200);
-  }
-
-  public static User getUserRemote(String url) throws Exception {
-    // System.err.println("get User From remote");
-    OkHttpClient client = new OkHttpClient();
-    Request request = new Request.Builder()
-        .url(url)
-        .build();
-
-    try (Response response = client.newCall(request).execute()) {
-      // assert response.body() != null;
-      String json = Objects.requireNonNull(response.body()).string();
-      // System.out.println(json);
-      Gson gson = new Gson();
-      UserWrapper resp = gson.fromJson(json, UserWrapper.class);
-      if (resp.isSuccess()) {
-        return resp.getData();
-      } else {
-        throw new Exception("can not obtain user.");
-
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw e;
+    static {
+        decoder = Base64.getDecoder();
     }
 
-  }
-
-  public static boolean isArrayEmpty(Object[] s) {
-    return s == null || s.length == 0;
-  }
-
-  public static Route getRouteInfo(String path) throws Responsable {
-
-    String[] paths = path.split("/");
-    int size = paths.length;
-    if (size <= 3) {
-      throw new IllegalRoute();
-    }
-
-    String pathKey = StringUtil.hashKey("p", path);
-    Route exacRoute = getRouteFromRedis(pathKey);
-    if (exacRoute != null) {
-      return exacRoute;
-    }
-
-    // 请准匹配
-    exacRoute = getRouteFromDB(path);
-    if (exacRoute == null) {
-      // 开始模糊匹配
-      exacRoute = getBestRouteFromDB(path, size);
-    }
-    if (exacRoute == null) {
-      throw new RouteNotFound();
-    }
-
-    saveRouteToRedis(pathKey, exacRoute);
-
-    return exacRoute;
-  }
-
-  public static Route getRouteFromRedis(String key) {
-    String userValue = RedisUtil.fromRedis(key);
-    if (userValue != null) {
-      // System.err.println("Get route from redis");
-      Gson gson = new Gson();
-      return gson.fromJson(userValue, Route.class);
-    }
-    return null;
-  }
-
-  /**
-   * 将用户访问的 route 加入缓存
-   * 
-   * 
-   * @param key
-   * @param route
-   */
-  private static void saveRouteToRedis(String key, Route route) {
-    Gson gson = new Gson();
-    String userValue = gson.toJson(route);
-    RedisUtil.saveRedis(key, userValue, 0);
-    // 反向存储缓存，将 DB 中的 route 的使用到的 key 存储在缓存中。方便更新路由配置的时候可以清理缓存。
-    RedisUtil.append("r-" + route.getId(), key, 0);
-  }
-
-  public static Route getBestRouteFromDB(String path, int size) throws Responsable {
-    String tarPath = path;
-    for (int idx = 0; idx < size - 3; idx++) {
-      tarPath = tarPath.substring(0, tarPath.lastIndexOf('/'));
-      Route route = getRouteFromDB(tarPath + "/");
-      if (route != null) {
-        return route;
-      }
-    }
-    return null;
-  }
-
-  public static Route getRouteFromDB(String path) throws Responsable {
-    try (Connection conn = MysqlDataSource.getConnection()) {
-      Route route = null;
-      String sqlSelectRoute = "select * from v_route_project where path_hash=CRC32(?)";
-
-      try (PreparedStatement psRoute = conn.prepareStatement(sqlSelectRoute)) {
-        psRoute.setString(1, path);
-        ResultSet rs = psRoute.executeQuery();
-        while (rs.next()) {
-          route = new Route();
-          route.setId(rs.getLong("id"));
-          route.setPath(rs.getString("path"));
-          route.setFullPath(rs.getString("full_path"));
-          route.setWrapper(rs.getInt("wrapper"));
-          route.setCors(rs.getInt("cors"));
+    public static String computeOpenId(String ticket) throws Exception {
+        Ticket ticket1;
+        try {
+            String ticketJson = new String(decoder.decode(ticket), StandardCharsets.UTF_8);
+            Gson gson = new Gson();
+            ticket1 = gson.fromJson(ticketJson, Ticket.class);
+        } catch (Exception ex) {
+            throw new Exception("authorized failed.");
         }
-        rs.close();
-      } catch (SQLException ex) {
-        ex.printStackTrace();
-        throw new Database(ex.getLocalizedMessage());
-      }
-      if (route == null) {
+        String sign = ticket1.getSign();
+        long expiresIn = ticket1.getExpiresIn();
+        String openId = ticket1.getOpenId();
+        long datetime = System.currentTimeMillis();
+        if (datetime > expiresIn * 1000) {
+            throw new Exception("ticket expired.");
+        }
+        String src = "{\"open_id\":\"" + openId + "\",\"expires_in\":" + expiresIn + "}";
+        String cSign = computeSign(src + ConfigFactory.config.getTicketSecret());
+        if (!sign.equals(cSign)) {
+            throw new Exception("authorized failed.");
+        }
+
+        return openId;
+    }
+
+    @NotNull
+    public static String computeSign(String input) throws NoSuchAlgorithmException {
+        return StringUtil.toHexString(StringUtil.getSHA(input));
+    }
+
+    public static User getUser(String ticket) throws Responsable {
+        String ticketKey = StringUtil.hashKey("t", ticket);
+        try {
+            User user = getUserFromRedis(ticketKey);
+            if (user != null) {
+                return user;
+            }
+            user = getUserRemote(ConfigFactory.config.getAccountUrl() + "?ticket=" + ticket);
+            if (user != null) {
+                saveUserToRedis(ticketKey, user);
+                return user;
+            }
+            return null;
+        } catch (Exception e) {
+            logger.error("Get user exception.", e);
+            // e.printStackTrace();
+            throw new NotAuthorized();
+        }
+    }
+
+    public static User getUserFromRedis(String ticketKey) {
+        String userValue = RedisUtil.fromRedis(ticketKey);
+        if (userValue != null) {
+            // System.err.println("Get user from redis");
+            Gson gson = new Gson();
+            return gson.fromJson(userValue, User.class);
+        }
         return null;
-      }
+    }
 
-      String sqlSelectRoles = "select * from route_role where route_id=?";
-      PreparedStatement psRouteRoles = conn.prepareStatement(sqlSelectRoles);
-      psRouteRoles.setLong(1, route.getId());
-      ArrayList<String> aRoles = new ArrayList<>();
-      ArrayList<String> fRoles = new ArrayList<>();
+    private static void saveUserToRedis(String ticketKey, User user) {
+        Gson gson = new Gson();
+        String userValue = gson.toJson(user);
+        RedisUtil.saveRedis(ticketKey, userValue, 7200);
+    }
 
-      try (ResultSet rs = psRouteRoles.executeQuery()) {
-        while (rs.next()) {
-          int type = rs.getInt("type");
-          if (type == 1) {
-            aRoles.add(rs.getString("role"));
-          } else {
-            fRoles.add(rs.getString("role"));
-          }
+    public static User getUserRemote(String url) throws Exception {
+        // System.err.println("get User From remote");
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            // assert response.body() != null;
+            String json = Objects.requireNonNull(response.body()).string();
+            // System.out.println(json);
+            Gson gson = new Gson();
+            UserWrapper resp = gson.fromJson(json, UserWrapper.class);
+            if (resp.isSuccess()) {
+                return resp.getData();
+            } else {
+                throw new Exception("can not obtain user.");
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
         }
-      } catch (SQLException e) {
-        e.printStackTrace();
-        throw new Database(e.getLocalizedMessage());
-      }
-      psRouteRoles.close();
-      route.setAuthorizedRoles(aRoles.toArray(String[]::new));
-      route.setForbiddenRoles(fRoles.toArray(String[]::new));
 
-      String sqlSelectBack = "select * from backend where route_id=?";
-      PreparedStatement psBackend = conn.prepareStatement(sqlSelectBack);
-      psBackend.setLong(1, route.getId());
+    }
 
-      try (ResultSet rs = psBackend.executeQuery()) {
+    public static boolean isArrayEmpty(Object[] s) {
+        return s == null || s.length == 0;
+    }
 
-        while (rs.next()) {
-          Backend b = new Backend();
-          route.getBackends().add(b);
-          b.setBodyPattern(rs.getString("body_pattern"));
-          b.setHeaderPattern(rs.getString("header_pattern"));
-          b.setPathPattern(rs.getString("path_pattern"));
-          b.setQueryPattern(rs.getString("query_pattern"));
-          b.setEnv(rs.getString("env"));
-          b.setHost(rs.getString("host"));
-          b.setPath(rs.getString("path"));
-          b.setPort(rs.getInt("port"));
-          b.setId(rs.getLong("id"));
-          b.setSchema(rs.getString("schema"));
-          b.setWeight(rs.getInt("weight"));
+    public static Route getRouteInfo(String path) throws Responsable {
+
+        String[] paths = path.split("/");
+        int size = paths.length;
+        if (size < 3) {
+            throw new IllegalRoute();
         }
-      } catch (SQLException e2) {
-        e2.printStackTrace();
-        throw new Database(e2.getLocalizedMessage());
-      }
-      psBackend.close();
 
-      conn.close();
-      return route;
-    } catch (SQLException e3) {
-      e3.printStackTrace();
-      throw new Database(e3.getLocalizedMessage());
-    }
-  }
+        String pathKey = StringUtil.hashKey("p", path);
+        Route exacRoute = getRouteFromRedis(pathKey);
+        if (exacRoute != null) {
+            return exacRoute;
+        }
 
-  public static Backend chooseBackend(Route route, UserRequest userRequest) throws Responsable {
+        // jing准匹配
+        exacRoute = getRouteFromDB(path);
+        if (exacRoute == null) {
+            // 开始模糊匹配
+            exacRoute = getBestRouteFromDB(path, size);
+        }
+        if (exacRoute == null) {
+            throw new RouteNotFound();
+        }
 
-    ArrayList<Backend> backends = route.getBackends();
-    int backendSize = backends.size();
-    if (backendSize == 0) {
-      throw new BackendNotFound();
-    }
-    if (backendSize == 1) {
-      return backends.get(0);
-    }
-    // TODO: 简化了 backend 选择，复杂逻辑日后再做：各种 pattern
-    int[] weights = new int[backendSize];
+        saveRouteToRedis(pathKey, exacRoute);
 
-    int idx = 0, preWeight = 0;
-    for (Backend backend : route.getBackends()) {
-      preWeight += backend.getWeight();
-      weights[idx] = preWeight;
-      idx++;
+        return exacRoute;
     }
-    int rdmWeight = new Random().nextInt(0, preWeight);
-    int chooseIdx = 0;
-    for (int tIdx = 0; tIdx < weights.length; tIdx++) {
-      if (rdmWeight <= weights[tIdx]) {
-        chooseIdx = tIdx;
-        break;
-      }
+
+    public static Route getRouteFromRedis(String key) {
+        String userValue = RedisUtil.fromRedis(key);
+        if (userValue != null) {
+            // System.err.println("Get route from redis");
+            Gson gson = new Gson();
+            return gson.fromJson(userValue, Route.class);
+        }
+        return null;
     }
-    return backends.get(chooseIdx);
-  }
+
+    /**
+     * 将用户访问的 route 加入缓存
+     *
+     * @param key
+     * @param route
+     */
+    private static void saveRouteToRedis(String key, Route route) {
+        Gson gson = new Gson();
+        String userValue = gson.toJson(route);
+        RedisUtil.saveRedis(key, userValue, 0);
+        // 反向存储缓存，将 DB 中的 route 的使用到的 key 存储在缓存中。方便更新路由配置的时候可以清理缓存。
+        RedisUtil.append("r-" + route.getId(), key, 0);
+    }
+
+    public static Route getBestRouteFromDB(String path, int size) throws Responsable {
+        String tarPath = path;
+        for (int idx = 0; idx < size - 3; idx++) {
+            tarPath = tarPath.substring(0, tarPath.lastIndexOf('/'));
+            Route route = getRouteFromDB(tarPath + "/");
+            if (route != null) {
+                return route;
+            }
+        }
+        return null;
+    }
+
+    public static Route getRouteFromDB(String path) throws Responsable {
+        try (Connection conn = MysqlDataSource.getConnection()) {
+            Route route = null;
+            String sqlSelectRoute = "select * from v_route_project where path_hash=CRC32(?)";
+
+            try (PreparedStatement psRoute = conn.prepareStatement(sqlSelectRoute)) {
+                psRoute.setString(1, path);
+                ResultSet rs = psRoute.executeQuery();
+                while (rs.next()) {
+                    route = new Route();
+                    route.setId(rs.getLong("id"));
+                    route.setPath(rs.getString("path"));
+                    route.setFullPath(rs.getString("full_path"));
+                    route.setWrapper(rs.getInt("wrapper"));
+                    route.setCors(rs.getInt("cors"));
+                }
+                rs.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                throw new Database(ex.getLocalizedMessage());
+            }
+            if (route == null) {
+                return null;
+            }
+
+            String sqlSelectRoles = "select * from route_role where route_id=?";
+            PreparedStatement psRouteRoles = conn.prepareStatement(sqlSelectRoles);
+            psRouteRoles.setLong(1, route.getId());
+            ArrayList<String> aRoles = new ArrayList<>();
+            ArrayList<String> fRoles = new ArrayList<>();
+
+            try (ResultSet rs = psRouteRoles.executeQuery()) {
+                while (rs.next()) {
+                    int type = rs.getInt("type");
+                    if (type == 1) {
+                        aRoles.add(rs.getString("role"));
+                    } else {
+                        fRoles.add(rs.getString("role"));
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new Database(e.getLocalizedMessage());
+            }
+            psRouteRoles.close();
+            route.setAuthorizedRoles(aRoles.toArray(String[]::new));
+            route.setForbiddenRoles(fRoles.toArray(String[]::new));
+
+            String sqlSelectBack = "select * from backend where route_id=?";
+            PreparedStatement psBackend = conn.prepareStatement(sqlSelectBack);
+            psBackend.setLong(1, route.getId());
+
+            try (ResultSet rs = psBackend.executeQuery()) {
+
+                while (rs.next()) {
+                    Backend b = new Backend();
+                    route.getBackends().add(b);
+                    b.setBodyPattern(rs.getString("body_pattern"));
+                    b.setHeaderPattern(rs.getString("header_pattern"));
+                    b.setPathPattern(rs.getString("path_pattern"));
+                    b.setQueryPattern(rs.getString("query_pattern"));
+                    b.setEnv(rs.getString("env"));
+                    b.setHost(rs.getString("host"));
+                    b.setPath(rs.getString("path"));
+                    b.setPort(rs.getInt("port"));
+                    b.setId(rs.getLong("id"));
+                    b.setSchema(rs.getString("schema"));
+                    b.setWeight(rs.getInt("weight"));
+                }
+            } catch (SQLException e2) {
+                e2.printStackTrace();
+                throw new Database(e2.getLocalizedMessage());
+            }
+            psBackend.close();
+
+            conn.close();
+            return route;
+        } catch (SQLException e3) {
+            e3.printStackTrace();
+            throw new Database(e3.getLocalizedMessage());
+        }
+    }
+
+    public static Backend chooseBackend(Route route, UserRequest userRequest) throws Responsable {
+
+        ArrayList<Backend> backends = route.getBackends();
+        int backendSize = backends.size();
+        if (backendSize == 0) {
+            throw new BackendNotFound();
+        }
+        if (backendSize == 1) {
+            return backends.get(0);
+        }
+        // TODO: 简化了 backend 选择，复杂逻辑日后再做：各种 pattern
+        int[] weights = new int[backendSize];
+
+        int idx = 0, preWeight = 0;
+        for (Backend backend : route.getBackends()) {
+            preWeight += backend.getWeight();
+            weights[idx] = preWeight;
+            idx++;
+        }
+        int rdmWeight = new Random().nextInt(0, preWeight);
+        int chooseIdx = 0;
+        for (int tIdx = 0; tIdx < weights.length; tIdx++) {
+            if (rdmWeight <= weights[tIdx]) {
+                chooseIdx = tIdx;
+                break;
+            }
+        }
+        return backends.get(chooseIdx);
+    }
 
 }

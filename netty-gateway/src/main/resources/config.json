@@ -11,10 +11,5 @@
     "password": "P@ssword123",
     "database": "cloudark"
   },
-  "redis": {
-    "password": "zhwell",
-    "host": "127.0.0.1",
-    "port": 8020,
-    "db": 10
-  }
+  "redisUri": "redis://zhwell@127.0.0.1:8020/10"
 }

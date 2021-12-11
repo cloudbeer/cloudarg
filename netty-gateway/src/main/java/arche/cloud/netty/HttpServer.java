@@ -47,7 +47,6 @@ public class HttpServer {
             System.out.println("Starting " + ConfigFactory.config.getName() + " server...");
             System.out.println("Gateway: " + ConfigFactory.config.getPort());
             System.out.println("Mysql  : " + ConfigFactory.config.getMysql().getHost());
-            System.out.println("Redis  : " + ConfigFactory.config.getRedis().getHost());
             System.out.println(ConfigFactory.config.getDescription());
             System.out.println("----------------------");
             System.out.println();

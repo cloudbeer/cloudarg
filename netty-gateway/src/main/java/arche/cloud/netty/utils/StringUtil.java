@@ -10,6 +10,10 @@ import java.util.Locale;
 import java.util.zip.CRC32;
 
 public class StringUtil {
+    private StringUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String toLowerCase(CharSequence input, String defaultValue) {
         if (input == null) {
             return defaultValue;
@@ -67,6 +71,7 @@ public class StringUtil {
         CRC32 crc32 = new CRC32();
         crc32.update(input.getBytes());
         return crc32.getValue();
+
     }
 
     public static String hashKey(String prefix, String input) {
