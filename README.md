@@ -172,13 +172,16 @@ module.exports = options => {
 "r" + routeId = append(routeKey)
 ```
 
-当 route 配置更新的时候，将同时删除相关 的 r 和 p 。
+当 route 配置更新的时候，将同时删除相关 的 r 和 p 。 （后台管理实现，当前尚未实现。）
 
 
 
 
 ## TODO
 
+- rate limit （系统级，route 级）
+- 黑名单，白名单（系统级，route 级）
 - 增加新功能：各种 pattern
-- 大body传输可能会出错（未处理 512K 以上的传输）
-- 当前不支持 https 访问内部服务
+- 大 body 传输可能会出错（未处理 512K 以上的传输）
+- 统计 qps
+- 内部服务 支持 https 访问（当前不计划支持）

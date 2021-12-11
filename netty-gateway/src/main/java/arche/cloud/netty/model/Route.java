@@ -148,15 +148,40 @@ public class Route {
         this.wrapper = wrapper;
     }
 
-    /** qps */
-    private Integer qps;
+    /** 限流 */
+    @SerializedName("rate_limit")
+    private Integer rateLimit;
 
-    public Integer getQps() {
-        return this.qps;
+    public Integer getRateLimit() {
+        return this.rateLimit;
     }
 
-    public void setQps(Integer _qps) {
-        this.qps = _qps;
+    public void setRateLimit(Integer _rateLimit) {
+        this.rateLimit = _rateLimit;
+    }
+
+    /** 黑名单 */
+    @SerializedName("black_list")
+    private String[] blackList;
+
+    public String[] getBlackList() {
+        return this.blackList;
+    }
+
+    public void setBlackList(String[] _blackList) {
+        this.blackList = _blackList;
+    }
+
+    /** 白名单 */
+    @SerializedName("white_list")
+    private String[] whiteList;
+
+    public String[] getWhiteList() {
+        return this.whiteList;
+    }
+
+    public void setWhiteList(String[] _whiteList) {
+        this.whiteList = _whiteList;
     }
 
     private ArrayList<Backend> backends;
