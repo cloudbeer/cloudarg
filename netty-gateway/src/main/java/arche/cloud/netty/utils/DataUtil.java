@@ -1,5 +1,18 @@
 package arche.cloud.netty.utils;
 
+import arche.cloud.netty.config.ConfigFactory;
+import arche.cloud.netty.db.MysqlDataSource;
+import arche.cloud.netty.db.RedisUtil;
+import arche.cloud.netty.exceptions.*;
+import arche.cloud.netty.model.*;
+import com.google.gson.Gson;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -12,30 +25,11 @@ import java.util.Base64;
 import java.util.Objects;
 import java.util.Random;
 
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import arche.cloud.netty.config.ConfigFactory;
-import arche.cloud.netty.db.MysqlDataSource;
-import arche.cloud.netty.db.RedisUtil;
-import arche.cloud.netty.exceptions.BackendNotFound;
-import arche.cloud.netty.exceptions.Database;
-import arche.cloud.netty.exceptions.IllegalRoute;
-import arche.cloud.netty.exceptions.NotAuthorized;
-import arche.cloud.netty.exceptions.Responsable;
-import arche.cloud.netty.exceptions.RouteNotFound;
-import arche.cloud.netty.model.Backend;
-import arche.cloud.netty.model.Route;
-import arche.cloud.netty.model.Ticket;
-import arche.cloud.netty.model.User;
-import arche.cloud.netty.model.UserRequest;
-import arche.cloud.netty.model.UserWrapper;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 public class DataUtil {
+
+  private DataUtil() {
+    throw new IllegalStateException("Utility class");
+  }
 
   static Logger logger = LoggerFactory.getLogger(DataUtil.class);
 
@@ -49,7 +43,8 @@ public class DataUtil {
     Ticket ticket1;
     try {
       String ticketJson = new String(decoder.decode(ticket), StandardCharsets.UTF_8);
-      ticket1 = GsonUtil.deserialize(ticketJson, Ticket.class);
+      Gson gson = new Gson();
+      ticket1 = gson.fromJson(ticketJson, Ticket.class);
     } catch (Exception ex) {
       throw new Exception("authorized failed.");
     }
@@ -98,13 +93,15 @@ public class DataUtil {
     String userValue = RedisUtil.fromRedis(ticketKey);
     if (userValue != null) {
       // System.err.println("Get user from redis");
-      return GsonUtil.deserialize(userValue, User.class);
+      Gson gson = new Gson();
+      return gson.fromJson(userValue, User.class);
     }
     return null;
   }
 
   private static void saveUserToRedis(String ticketKey, User user) {
-    String userValue = GsonUtil.serialize(user);
+    Gson gson = new Gson();
+    String userValue = gson.toJson(user);
     RedisUtil.saveRedis(ticketKey, userValue, 7200);
   }
 
@@ -116,8 +113,11 @@ public class DataUtil {
         .build();
 
     try (Response response = client.newCall(request).execute()) {
+      // assert response.body() != null;
       String json = Objects.requireNonNull(response.body()).string();
-      UserWrapper resp = GsonUtil.deserialize(json, UserWrapper.class);
+      // System.out.println(json);
+      Gson gson = new Gson();
+      UserWrapper resp = gson.fromJson(json, UserWrapper.class);
       if (resp.isSuccess()) {
         return resp.getData();
       } else {
@@ -139,7 +139,7 @@ public class DataUtil {
 
     String[] paths = path.split("/");
     int size = paths.length;
-    if (size <= 3) {
+    if (size < 3) {
       throw new IllegalRoute();
     }
 
@@ -149,7 +149,7 @@ public class DataUtil {
       return exacRoute;
     }
 
-    // 请准匹配
+    // jing准匹配
     exacRoute = getRouteFromDB(path);
     if (exacRoute == null) {
       // 开始模糊匹配
@@ -168,20 +168,21 @@ public class DataUtil {
     String userValue = RedisUtil.fromRedis(key);
     if (userValue != null) {
       // System.err.println("Get route from redis");
-      return GsonUtil.deserialize(userValue, Route.class);
+      Gson gson = new Gson();
+      return gson.fromJson(userValue, Route.class);
     }
     return null;
   }
 
   /**
    * 将用户访问的 route 加入缓存
-   * 
-   * 
+   *
    * @param key
    * @param route
    */
   private static void saveRouteToRedis(String key, Route route) {
-    String userValue = GsonUtil.serialize(route);
+    Gson gson = new Gson();
+    String userValue = gson.toJson(route);
     RedisUtil.saveRedis(key, userValue, 0);
     // 反向存储缓存，将 DB 中的 route 的使用到的 key 存储在缓存中。方便更新路由配置的时候可以清理缓存。
     RedisUtil.append("r-" + route.getId(), key, 0);

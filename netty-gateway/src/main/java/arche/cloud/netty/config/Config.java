@@ -2,15 +2,22 @@ package arche.cloud.netty.config;
 
 public class Config {
 
-
-
     private String name;
     private String description;
     private int port;
     private Mysql mysql;
-    private Redis redis;
     private String accountUrl;
     private String ticketSecret;
+
+    public String getRedisUri() {
+        return redisUri;
+    }
+
+    public void setRedisUri(String redisUri) {
+        this.redisUri = redisUri;
+    }
+
+    private String redisUri;
 
     public String getName() {
         return name;
@@ -34,14 +41,6 @@ public class Config {
 
     public void setMysql(Mysql mysql) {
         this.mysql = mysql;
-    }
-
-    public Redis getRedis() {
-        return redis;
-    }
-
-    public void setRedis(Redis redis) {
-        this.redis = redis;
     }
 
     public int getPort() {

@@ -1,5 +1,6 @@
 package arche.cloud.netty.db;
 
+import arche.cloud.netty.config.Config;
 import arche.cloud.netty.config.ConfigFactory;
 
 import io.lettuce.core.RedisClient;
@@ -8,21 +9,9 @@ import io.lettuce.core.api.sync.RedisCommands;
 
 public class RedisUtil {
 
-  private static String getRedisUrl() {
-
-    String redisUri = "redis://";
-    String password = ConfigFactory.config.getRedis().getPassword();
-    if (password != null && password.length() > 0) {
-      redisUri += password + "@";
-    }
-    redisUri += ConfigFactory.config.getRedis().getHost() +
-        ":" + ConfigFactory.config.getRedis().getPort() +
-        "/" + ConfigFactory.config.getRedis().getDb();
-    return redisUri;
-  }
 
   public static void append(String key, String value, long expireSeconds) {
-    RedisClient redisClient = RedisClient.create(getRedisUrl());
+    RedisClient redisClient = RedisClient.create(ConfigFactory.config.getRedisUri());
     StatefulRedisConnection<String, String> connection = redisClient.connect();
     RedisCommands<String, String> syncCommands = connection.sync();
     syncCommands.sadd(key, value);
@@ -35,7 +24,7 @@ public class RedisUtil {
 
   public static void saveRedis(String key, String value, long expireSeconds) {
 
-    RedisClient redisClient = RedisClient.create(getRedisUrl());
+    RedisClient redisClient = RedisClient.create(ConfigFactory.config.getRedisUri());
     StatefulRedisConnection<String, String> connection = redisClient.connect();
     RedisCommands<String, String> syncCommands = connection.sync();
 
@@ -49,7 +38,7 @@ public class RedisUtil {
   }
 
   public static String fromRedis(String key) {
-    RedisClient redisClient = RedisClient.create(getRedisUrl());
+    RedisClient redisClient = RedisClient.create(ConfigFactory.config.getRedisUri());
     StatefulRedisConnection<String, String> connection = redisClient.connect();
     RedisCommands<String, String> syncCommands = connection.sync();
 

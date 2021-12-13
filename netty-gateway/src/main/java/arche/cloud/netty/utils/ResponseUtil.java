@@ -17,6 +17,9 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 
 public class ResponseUtil {
+  private ResponseUtil() {
+    throw new IllegalStateException("Utility class");
+  }
 
   private static void mixinHeaders(FullHttpResponse response, HashMap<String, String> headers) {
     response.headers().set("server", "cloudarg");

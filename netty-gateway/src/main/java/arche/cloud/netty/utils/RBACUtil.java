@@ -7,6 +7,9 @@ import arche.cloud.netty.model.User;
 import java.util.Arrays;
 
 public class RBACUtil {
+  private RBACUtil() {
+    throw new IllegalStateException("Utility class");
+  }
 
   public static boolean pass(String url, String ticket) {
     return true;

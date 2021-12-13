@@ -15,6 +15,10 @@ import io.netty.util.CharsetUtil;
 
 public class CommonHandler {
 
+  private CommonHandler() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static void echoMetrics(ChannelHandlerContext ctx, FullHttpRequest req) {
 
     FullHttpResponse response = new DefaultFullHttpResponse(
