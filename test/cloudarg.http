@@ -11,6 +11,12 @@
 
 @ticketNormal=eyJvcGVuX2lkIjoiMzdmOWU3ZWMtZjEyZS00ZjAyLTkzMDctZGU1MWVkNTk0YTRkIiwiZXhwaXJlc19pbiI6MTE1NjYyMDgyMzAwLCJzaWduIjoiMjBlNGEwMDFjYjcwYzI5YjU5ODZiNmE2ZmQwYzIwNzhkNjAxZTM0MjQ4MjUwN2M4NTFiODMzM2ZmZmZmMTFkOSJ9
 
+
+### 获取
+GET {{hostGateway}}/cloudarling/_/open/account/info
+Authorization: bearer {{ticketAdmin}}
+
+
 ### 获取
 GET {{hostGateway}}/cloudarg/_/admin/route/detail/2
 Authorization: bearer {{ticketAdmin}}
@@ -21,6 +27,7 @@ Authorization: bearer {{ticketAdmin}}
 
 
 {
+    "id": 4,
     "path": "/metrics",
     "title": "Metrics",
     "project_id": 2,

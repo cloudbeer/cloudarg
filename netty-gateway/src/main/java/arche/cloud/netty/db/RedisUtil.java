@@ -1,8 +1,6 @@
 package arche.cloud.netty.db;
 
-import arche.cloud.netty.config.Config;
 import arche.cloud.netty.config.ConfigFactory;
-
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;

@@ -175,13 +175,18 @@ module.exports = options => {
 当 route 配置更新的时候，将同时删除相关 的 r 和 p 。 （后台管理实现，当前尚未实现。）
 
 
+## 限流
+
+通过指定 rate limit 进行限流，当前实现的是 单节点（cloudarg 的节点）限流。所以这里的限流特指单服务器。
 
 
 ## TODO
 
-- rate limit （系统级，route 级）
+- rate limit （系统级，route 级） 
 - 黑名单，白名单（系统级，route 级）
 - 增加新功能：各种 pattern
+- 结果缓存
+- 超时时间
 - 大 body 传输可能会出错（未处理 512K 以上的传输）
 - 统计 qps
 - 内部服务 支持 https 访问（当前不计划支持）

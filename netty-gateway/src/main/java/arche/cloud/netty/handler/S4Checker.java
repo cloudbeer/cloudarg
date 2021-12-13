@@ -16,15 +16,12 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 
 public class S4Checker extends SimpleChannelInboundHandler<FullHttpRequest> {
-    Logger logger = LoggerFactory.getLogger(S2LoadRoute.class);
+    Logger logger = LoggerFactory.getLogger(S4Checker.class);
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.error("pipeline error", cause);
         ctx.close();
-        // ResponseUtil.wrap(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, headers,
-        // cause.getMessage());
-        // Uncaught exceptions from inbound handlers will propagate up to this handler
     }
 
     @Override

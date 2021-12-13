@@ -1,6 +1,5 @@
 package arche.cloud.netty.client;
 
-
 import arche.cloud.netty.exceptions.Responsable;
 import arche.cloud.netty.model.*;
 import arche.cloud.netty.utils.DataUtil;
@@ -25,7 +24,6 @@ public class RpcClient {
   private UserRequest userRequest;
   private Route route;
   private User user;
-
 
   public ChannelHandlerContext getParentContext() {
     return parentContext;
@@ -68,8 +66,8 @@ public class RpcClient {
   }
 
   public RpcClient() {
+    // TODO document why this constructor is empty
   }
-
 
   public void accessBackend() {
     try {
@@ -98,8 +96,6 @@ public class RpcClient {
             rpcUrl += "?" + userRequest.getQuery();
           }
 
-//          logger.error(rpcUrl);
-
           FullHttpRequest request = RequestUtil.copyRequest(parentRequest, rpcUrl);
 
           request.headers().set(HttpHeaderNames.HOST, host + ":" + port);
@@ -110,14 +106,13 @@ public class RpcClient {
           }
           request.headers().set("__request_id__", userRequest.getRequestId());
 
-
           channel.write(request);
           channel.writeAndFlush(Unpooled.EMPTY_BUFFER);
           pool.release(channel);
         }
       });
     } catch (Responsable e) {
-      e.echo(parentContext, userRequest.getRequestId(), userRequest.logInfo(),false);
+      e.echo(parentContext, userRequest.getRequestId(), userRequest.logInfo(), false);
     }
   }
 }

@@ -5,7 +5,6 @@ import arche.cloud.netty.db.MysqlDataSource;
 import arche.cloud.netty.db.RedisUtil;
 import arche.cloud.netty.exceptions.*;
 import arche.cloud.netty.model.*;
-import com.google.gson.Gson;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -22,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -34,17 +34,18 @@ public class DataUtil {
   static Logger logger = LoggerFactory.getLogger(DataUtil.class);
 
   public static final Base64.Decoder decoder;
+  private static final Random random;
 
   static {
     decoder = Base64.getDecoder();
+    random = new Random();
   }
 
   public static String computeOpenId(String ticket) throws Exception {
     Ticket ticket1;
     try {
       String ticketJson = new String(decoder.decode(ticket), StandardCharsets.UTF_8);
-      Gson gson = new Gson();
-      ticket1 = gson.fromJson(ticketJson, Ticket.class);
+      ticket1 = GsonUtil.deserialize(ticketJson, Ticket.class);
     } catch (Exception ex) {
       throw new Exception("authorized failed.");
     }
@@ -93,15 +94,13 @@ public class DataUtil {
     String userValue = RedisUtil.fromRedis(ticketKey);
     if (userValue != null) {
       // System.err.println("Get user from redis");
-      Gson gson = new Gson();
-      return gson.fromJson(userValue, User.class);
+      return GsonUtil.deserialize(userValue, User.class);
     }
     return null;
   }
 
   private static void saveUserToRedis(String ticketKey, User user) {
-    Gson gson = new Gson();
-    String userValue = gson.toJson(user);
+    String userValue = GsonUtil.serialize(user);
     RedisUtil.saveRedis(ticketKey, userValue, 7200);
   }
 
@@ -116,8 +115,7 @@ public class DataUtil {
       // assert response.body() != null;
       String json = Objects.requireNonNull(response.body()).string();
       // System.out.println(json);
-      Gson gson = new Gson();
-      UserWrapper resp = gson.fromJson(json, UserWrapper.class);
+      UserWrapper resp = GsonUtil.deserialize(json, UserWrapper.class);
       if (resp.isSuccess()) {
         return resp.getData();
       } else {
@@ -167,9 +165,7 @@ public class DataUtil {
   public static Route getRouteFromRedis(String key) {
     String userValue = RedisUtil.fromRedis(key);
     if (userValue != null) {
-      // System.err.println("Get route from redis");
-      Gson gson = new Gson();
-      return gson.fromJson(userValue, Route.class);
+      return GsonUtil.deserialize(userValue, Route.class);
     }
     return null;
   }
@@ -181,8 +177,7 @@ public class DataUtil {
    * @param route
    */
   private static void saveRouteToRedis(String key, Route route) {
-    Gson gson = new Gson();
-    String userValue = gson.toJson(route);
+    String userValue = GsonUtil.serialize(route);
     RedisUtil.saveRedis(key, userValue, 0);
     // 反向存储缓存，将 DB 中的 route 的使用到的 key 存储在缓存中。方便更新路由配置的时候可以清理缓存。
     RedisUtil.append("r-" + route.getId(), key, 0);
@@ -215,6 +210,7 @@ public class DataUtil {
           route.setFullPath(rs.getString("full_path"));
           route.setWrapper(rs.getInt("wrapper"));
           route.setCors(rs.getInt("cors"));
+          route.setRateLimit(rs.getInt("rate_limit"));
         }
         rs.close();
       } catch (SQLException ex) {
@@ -285,7 +281,7 @@ public class DataUtil {
 
   public static Backend chooseBackend(Route route, UserRequest userRequest) throws Responsable {
 
-    ArrayList<Backend> backends = route.getBackends();
+    List<Backend> backends = route.getBackends();
     int backendSize = backends.size();
     if (backendSize == 0) {
       throw new BackendNotFound();
@@ -296,13 +292,14 @@ public class DataUtil {
     // TODO: 简化了 backend 选择，复杂逻辑日后再做：各种 pattern
     int[] weights = new int[backendSize];
 
-    int idx = 0, preWeight = 0;
+    int idx = 0;
+    int preWeight = 0;
     for (Backend backend : route.getBackends()) {
       preWeight += backend.getWeight();
       weights[idx] = preWeight;
       idx++;
     }
-    int rdmWeight = new Random().nextInt(0, preWeight);
+    int rdmWeight = random.nextInt(0, preWeight);
     int chooseIdx = 0;
     for (int tIdx = 0; tIdx < weights.length; tIdx++) {
       if (rdmWeight <= weights[tIdx]) {

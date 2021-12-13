@@ -37,6 +37,7 @@ public class S3LoadUser extends SimpleChannelInboundHandler<FullHttpRequest> {
             // logger.error("error", e);
             e.printStackTrace();
             e.echo(ctx, uq.getRequestId(), uq.logInfo(), false);
+            req.release();
 
             // ResponseUtil.echo(ctx, HttpResponseStatus.UNAUTHORIZED, uq.getRequestId(),
             // e.getMessage());

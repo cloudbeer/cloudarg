@@ -66,7 +66,7 @@ public class RequestUtil {
     public static String getValueFromQuery(String query, String key) {
         Map<String, List<String>> parameters = new QueryStringDecoder(query).parameters();
         List<String> tickets = parameters.get(key);
-        if (tickets != null && tickets.size() > 0) {
+        if (tickets != null && !tickets.isEmpty()) {
             return tickets.get(0);
         }
         return null;

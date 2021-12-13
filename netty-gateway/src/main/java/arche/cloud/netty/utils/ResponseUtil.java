@@ -21,7 +21,7 @@ public class ResponseUtil {
     throw new IllegalStateException("Utility class");
   }
 
-  private static void mixinHeaders(FullHttpResponse response, HashMap<String, String> headers) {
+  private static void mixinHeaders(FullHttpResponse response, Map<String, String> headers) {
     response.headers().set("server", "cloudarg");
     headers.forEach((key, value) -> {
       if (!"cors".equals(key)) {
@@ -39,7 +39,7 @@ public class ResponseUtil {
 
   public static void wrap(ChannelHandlerContext ctx,
       HttpResponseStatus status,
-      HashMap<String, String> headers,
+      Map<String, String> headers,
       Object data) {
     FullHttpResponse response = new DefaultFullHttpResponse(
         HttpVersion.HTTP_1_1,
