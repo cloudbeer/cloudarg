@@ -27,7 +27,7 @@ public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
     } catch (Responsable e) {
       e.echo(ctx, uq.getRequestId(), uq.logInfo(), false);
     }
-    // ctx.pipeline().remove(this);
+    ctx.pipeline().remove(this);
 
   }
 }

@@ -1,17 +1,16 @@
 package arche.cloud.netty.model;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+
+import com.google.gson.annotations.SerializedName;
+
+import arche.cloud.netty.utils.GsonUtil;
 
 public class User {
 
     public String toString() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(this);
+        return GsonUtil.toString(this);
     }
 
     public String toHeaderString() {
@@ -25,7 +24,6 @@ public class User {
     private String nick;
     private String email;
     private String[] roles;
-
 
     public Long getId() {
         return id;

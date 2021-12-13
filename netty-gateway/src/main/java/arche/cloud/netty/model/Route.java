@@ -1,10 +1,11 @@
 package arche.cloud.netty.model;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
+import arche.cloud.netty.utils.GsonUtil;
 
 /*
  *  路由配置
@@ -17,8 +18,7 @@ public class Route {
     }
 
     public String toString() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(this);
+        return GsonUtil.toString(this);
     }
 
     /** 编号 */
@@ -28,8 +28,8 @@ public class Route {
         return this.id;
     }
 
-    public void setId(Long _id) {
-        this.id = _id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     /** 标题 */
@@ -39,8 +39,8 @@ public class Route {
         return this.title;
     }
 
-    public void setTitle(String _title) {
-        this.title = _title;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /** 描述 */
@@ -50,8 +50,8 @@ public class Route {
         return this.description;
     }
 
-    public void setDescription(String _description) {
-        this.description = _description;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /** 项目 */
@@ -62,8 +62,8 @@ public class Route {
         return this.projectName;
     }
 
-    public void setProjectName(String _projectName) {
-        this.projectName = _projectName;
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     /** 版本 */
@@ -73,8 +73,8 @@ public class Route {
         return this.version;
     }
 
-    public void setVersion(String _version) {
-        this.version = _version;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     /** 路径 */
@@ -84,8 +84,8 @@ public class Route {
         return this.path;
     }
 
-    public void setPath(String _path) {
-        this.path = _path;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /** 完整路径 */
@@ -96,8 +96,8 @@ public class Route {
         return this.fullPath;
     }
 
-    public void setFullPath(String _fullPath) {
-        this.fullPath = _fullPath;
+    public void setFullPath(String fullPath) {
+        this.fullPath = fullPath;
     }
 
     /**
@@ -156,8 +156,8 @@ public class Route {
         return this.rateLimit;
     }
 
-    public void setRateLimit(Integer _rateLimit) {
-        this.rateLimit = _rateLimit;
+    public void setRateLimit(Integer rateLimit) {
+        this.rateLimit = rateLimit;
     }
 
     /** 黑名单 */
@@ -168,8 +168,8 @@ public class Route {
         return this.blackList;
     }
 
-    public void setBlackList(String[] _blackList) {
-        this.blackList = _blackList;
+    public void setBlackList(String[] blackList) {
+        this.blackList = blackList;
     }
 
     /** 白名单 */
@@ -180,17 +180,17 @@ public class Route {
         return this.whiteList;
     }
 
-    public void setWhiteList(String[] _whiteList) {
-        this.whiteList = _whiteList;
+    public void setWhiteList(String[] whiteList) {
+        this.whiteList = whiteList;
     }
 
-    private ArrayList<Backend> backends;
+    private List<Backend> backends;
 
-    public ArrayList<Backend> getBackends() {
+    public List<Backend> getBackends() {
         return backends;
     }
 
-    public void setBackends(ArrayList<Backend> backends) {
+    public void setBackends(List<Backend> backends) {
         this.backends = backends;
     }
 

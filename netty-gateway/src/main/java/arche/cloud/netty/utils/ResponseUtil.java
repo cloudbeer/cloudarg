@@ -5,8 +5,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -51,7 +49,6 @@ public class ResponseUtil {
     if (status == HttpResponseStatus.OK) {
       wrapResponse(response, data, contentType.contains("json"));
     } else {
-      Gson gson = new Gson();
       Map<String, Object> result = new HashMap<>();
       result.put("service", "cloudarg");
       result.put("success", false);
@@ -59,7 +56,7 @@ public class ResponseUtil {
       error.put("code", status.code());
       error.put("message", data);
       result.put("error", error);
-      response.content().writeBytes(Unpooled.copiedBuffer(gson.toJson(result), CharsetUtil.UTF_8));
+      response.content().writeBytes(Unpooled.copiedBuffer(GsonUtil.serialize(result), CharsetUtil.UTF_8));
     }
     response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -82,8 +79,7 @@ public class ResponseUtil {
     } else if (data instanceof String content) {
       response.content().writeBytes(Unpooled.copiedBuffer(content, CharsetUtil.UTF_8));
     } else if (data instanceof Serializable content) {
-      Gson gson = new Gson();
-      response.content().writeBytes(Unpooled.copiedBuffer(gson.toJson(content), CharsetUtil.UTF_8));
+      response.content().writeBytes(Unpooled.copiedBuffer(GsonUtil.serialize(content), CharsetUtil.UTF_8));
     } else {
       response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR);
       response.content().writeBytes(Unpooled.copiedBuffer("not support now.", CharsetUtil.UTF_8));

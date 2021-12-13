@@ -1,18 +1,5 @@
 package arche.cloud.netty.utils;
 
-import arche.cloud.netty.config.ConfigFactory;
-import arche.cloud.netty.db.MysqlDataSource;
-import arche.cloud.netty.db.RedisUtil;
-import arche.cloud.netty.exceptions.*;
-import arche.cloud.netty.model.*;
-import com.google.gson.Gson;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -25,11 +12,34 @@ import java.util.Base64;
 import java.util.Objects;
 import java.util.Random;
 
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import arche.cloud.netty.config.ConfigFactory;
+import arche.cloud.netty.db.MysqlDataSource;
+import arche.cloud.netty.db.RedisUtil;
+import arche.cloud.netty.exceptions.BackendNotFound;
+import arche.cloud.netty.exceptions.Database;
+import arche.cloud.netty.exceptions.IllegalRoute;
+import arche.cloud.netty.exceptions.NotAuthorized;
+import arche.cloud.netty.exceptions.Responsable;
+import arche.cloud.netty.exceptions.RouteNotFound;
+import arche.cloud.netty.model.Backend;
+import arche.cloud.netty.model.Route;
+import arche.cloud.netty.model.Ticket;
+import arche.cloud.netty.model.User;
+import arche.cloud.netty.model.UserRequest;
+import arche.cloud.netty.model.UserWrapper;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class DataUtil {
 
   static Logger logger = LoggerFactory.getLogger(DataUtil.class);
 
-  public static Base64.Decoder decoder;
+  public static final Base64.Decoder decoder;
 
   static {
     decoder = Base64.getDecoder();
@@ -39,8 +49,7 @@ public class DataUtil {
     Ticket ticket1;
     try {
       String ticketJson = new String(decoder.decode(ticket), StandardCharsets.UTF_8);
-      Gson gson = new Gson();
-      ticket1 = gson.fromJson(ticketJson, Ticket.class);
+      ticket1 = GsonUtil.deserialize(ticketJson, Ticket.class);
     } catch (Exception ex) {
       throw new Exception("authorized failed.");
     }
@@ -89,15 +98,13 @@ public class DataUtil {
     String userValue = RedisUtil.fromRedis(ticketKey);
     if (userValue != null) {
       // System.err.println("Get user from redis");
-      Gson gson = new Gson();
-      return gson.fromJson(userValue, User.class);
+      return GsonUtil.deserialize(userValue, User.class);
     }
     return null;
   }
 
   private static void saveUserToRedis(String ticketKey, User user) {
-    Gson gson = new Gson();
-    String userValue = gson.toJson(user);
+    String userValue = GsonUtil.serialize(user);
     RedisUtil.saveRedis(ticketKey, userValue, 7200);
   }
 
@@ -109,11 +116,8 @@ public class DataUtil {
         .build();
 
     try (Response response = client.newCall(request).execute()) {
-      // assert response.body() != null;
       String json = Objects.requireNonNull(response.body()).string();
-      // System.out.println(json);
-      Gson gson = new Gson();
-      UserWrapper resp = gson.fromJson(json, UserWrapper.class);
+      UserWrapper resp = GsonUtil.deserialize(json, UserWrapper.class);
       if (resp.isSuccess()) {
         return resp.getData();
       } else {
@@ -164,8 +168,7 @@ public class DataUtil {
     String userValue = RedisUtil.fromRedis(key);
     if (userValue != null) {
       // System.err.println("Get route from redis");
-      Gson gson = new Gson();
-      return gson.fromJson(userValue, Route.class);
+      return GsonUtil.deserialize(userValue, Route.class);
     }
     return null;
   }
@@ -178,8 +181,7 @@ public class DataUtil {
    * @param route
    */
   private static void saveRouteToRedis(String key, Route route) {
-    Gson gson = new Gson();
-    String userValue = gson.toJson(route);
+    String userValue = GsonUtil.serialize(route);
     RedisUtil.saveRedis(key, userValue, 0);
     // 反向存储缓存，将 DB 中的 route 的使用到的 key 存储在缓存中。方便更新路由配置的时候可以清理缓存。
     RedisUtil.append("r-" + route.getId(), key, 0);

@@ -1,7 +1,6 @@
 package arche.cloud.netty.model;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import arche.cloud.netty.utils.GsonUtil;
 
 /**
  * 后端
@@ -11,8 +10,7 @@ import com.google.gson.GsonBuilder;
 public class Backend {
 
     public String toString() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(this);
+        return GsonUtil.toString(this);
     }
 
     public String toUrl() {
@@ -32,8 +30,8 @@ public class Backend {
         return this.id;
     }
 
-    public void setId(Long _id) {
-        this.id = _id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     /**
@@ -45,8 +43,8 @@ public class Backend {
         return this.title;
     }
 
-    public void setTitle(String _title) {
-        this.title = _title;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /**
@@ -58,8 +56,8 @@ public class Backend {
         return this.routeId;
     }
 
-    public void setRouteId(Long _routeId) {
-        this.routeId = _routeId;
+    public void setRouteId(Long routeId) {
+        this.routeId = routeId;
     }
 
     /**
@@ -71,8 +69,8 @@ public class Backend {
         return this.env;
     }
 
-    public void setEnv(String _env) {
-        this.env = _env;
+    public void setEnv(String env) {
+        this.env = env;
     }
 
     /**
@@ -84,8 +82,8 @@ public class Backend {
         return this.host;
     }
 
-    public void setHost(String _host) {
-        this.host = _host;
+    public void setHost(String host) {
+        this.host = host;
     }
 
     /**
@@ -97,8 +95,8 @@ public class Backend {
         return this.port;
     }
 
-    public void setPort(Integer _port) {
-        this.port = _port;
+    public void setPort(Integer port) {
+        this.port = port;
     }
 
     /**
@@ -110,8 +108,8 @@ public class Backend {
         return this.schema;
     }
 
-    public void setSchema(String _schema) {
-        this.schema = _schema;
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 
     /**
@@ -123,8 +121,8 @@ public class Backend {
         return this.path;
     }
 
-    public void setPath(String _path) {
-        this.path = _path;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**
@@ -136,8 +134,8 @@ public class Backend {
         return this.headerPattern;
     }
 
-    public void setHeaderPattern(String _headerPattern) {
-        this.headerPattern = _headerPattern;
+    public void setHeaderPattern(String headerPattern) {
+        this.headerPattern = headerPattern;
     }
 
     /**
@@ -149,8 +147,8 @@ public class Backend {
         return this.pathPattern;
     }
 
-    public void setPathPattern(String _pathPattern) {
-        this.pathPattern = _pathPattern;
+    public void setPathPattern(String pathPattern) {
+        this.pathPattern = pathPattern;
     }
 
     /**
@@ -162,8 +160,8 @@ public class Backend {
         return this.queryPattern;
     }
 
-    public void setQueryPattern(String _queryPattern) {
-        this.queryPattern = _queryPattern;
+    public void setQueryPattern(String queryPattern) {
+        this.queryPattern = queryPattern;
     }
 
     /**
@@ -175,8 +173,8 @@ public class Backend {
         return this.bodyPattern;
     }
 
-    public void setBodyPattern(String _bodyPattern) {
-        this.bodyPattern = _bodyPattern;
+    public void setBodyPattern(String bodyPattern) {
+        this.bodyPattern = bodyPattern;
     }
 
     /**
@@ -188,10 +186,8 @@ public class Backend {
         return this.weight;
     }
 
-    public void setWeight(Integer _weight) {
-        this.weight = _weight;
+    public void setWeight(Integer weight) {
+        this.weight = weight;
     }
 
-
 }
-

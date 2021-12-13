@@ -8,6 +8,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public class S1ParseRequest extends SimpleChannelInboundHandler<FullHttpRequest>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
         String url = req.uri();
-        logger.info(url);
+        // logger.info(url);
         if ("/metrics".equals(url)) {
             CommonHandler.echoMetrics(ctx, req);
             return;
@@ -35,6 +36,6 @@ public class S1ParseRequest extends SimpleChannelInboundHandler<FullHttpRequest>
 
         ctx.channel().attr(DataKeys.REQUEST_INFO).set(uq);
         ctx.fireChannelRead(req);
-        // ctx.pipeline().remove(this);
+        ctx.pipeline().remove(this);
     }
 }
