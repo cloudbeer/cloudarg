@@ -3,6 +3,7 @@ package arche.cloud.netty.client;
 import java.util.HashMap;
 import java.util.Locale;
 
+import arche.cloud.netty.model.Constants;
 import arche.cloud.netty.model.DataKeys;
 import arche.cloud.netty.model.Route;
 import arche.cloud.netty.model.UserRequest;
@@ -34,7 +35,7 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
     UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
 
     HashMap<String, String> headers = new HashMap<>();
-    headers.put("tracing_id", uq.getRequestId());
+    headers.put(Constants.HEADER_REQUEST_ID, uq.getRequestId());
 
     CharSequence contentType = "application/json";
     HttpResponseStatus status = HttpResponseStatus.OK;

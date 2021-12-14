@@ -17,7 +17,8 @@ public class S1ParseRequest extends SimpleChannelInboundHandler<FullHttpRequest>
     Logger logger = LoggerFactory.getLogger(S1ParseRequest.class);
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
+
         String url = req.uri();
         // logger.info(url);
         if ("/metrics".equals(url)) {

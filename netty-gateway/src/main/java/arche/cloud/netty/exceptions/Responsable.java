@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import arche.cloud.netty.model.Constants;
 import arche.cloud.netty.utils.ResponseUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -52,7 +53,7 @@ public class Responsable extends Exception {
 
     logger.error("request-id:[{}] - {} - {}", requestId, pathInfo, msg);
     HashMap<String, String> headers = new HashMap<>();
-    headers.put("tracing_id", requestId);
+    headers.put(Constants.HEADER_REQUEST_ID, requestId);
     if (cors) {
       headers.put("Access-Control-Allow-Origin", "*");
       headers.put("Access-Control-Allow-Methods", "*");

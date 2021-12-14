@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import arche.cloud.netty.model.Constants;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -22,7 +23,7 @@ public class ResponseUtil {
   }
 
   private static void mixinHeaders(FullHttpResponse response, Map<String, String> headers) {
-    response.headers().set("server", "cloudarg");
+    response.headers().set("server", Constants.HEADER_APP_NAME);
     headers.forEach((key, value) -> {
       if (!"cors".equals(key)) {
         response.headers().set(key, value);
@@ -53,7 +54,7 @@ public class ResponseUtil {
       wrapResponse(response, data, contentType.contains("json"));
     } else {
       Map<String, Object> result = new HashMap<>();
-      result.put("service", "cloudarg");
+      result.put("service", Constants.HEADER_APP_NAME);
       result.put("success", false);
       Map<String, Object> error = new HashMap<>();
       error.put("code", status.code());
@@ -70,7 +71,6 @@ public class ResponseUtil {
     String pre = "{\"service\":\"cloudarg\",\"success\":true,\"data\":";
     response.content().writeBytes(Unpooled.copiedBuffer(pre, CharsetUtil.UTF_8));
     if (data instanceof ByteBuf content) {
-      // System.out.println(content.toString(CharsetUtil.UTF_8));
       if (isJson) {
         response.content().writeBytes(Unpooled.copiedBuffer(content));
       } else {
@@ -78,7 +78,6 @@ public class ResponseUtil {
         response.content().writeBytes(Base64.getEncoder().encode(content.nioBuffer()));
         response.content().writeBytes(Unpooled.copiedBuffer("\"", CharsetUtil.UTF_8));
       }
-      // response.content().writeBytes(content);
     } else if (data instanceof String content) {
       response.content().writeBytes(Unpooled.copiedBuffer(content, CharsetUtil.UTF_8));
     } else if (data instanceof Serializable content) {
@@ -94,7 +93,7 @@ public class ResponseUtil {
 
   public static void pass(ChannelHandlerContext ctx,
       HttpResponseStatus status,
-      HashMap<String, String> headers,
+      Map<String, String> headers,
       ByteBuf data) {
     FullHttpResponse response = new DefaultFullHttpResponse(
         HttpVersion.HTTP_1_1,
@@ -102,7 +101,8 @@ public class ResponseUtil {
         Unpooled.copiedBuffer(data));
     mixinHeaders(response, headers);
     // response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
-    response.headers().set("server", "cloudarg");
+    response.headers().set("server", Constants.HEADER_APP_NAME);
+
     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     ctx.close();
   }
@@ -127,7 +127,7 @@ public class ResponseUtil {
   // Unpooled.copiedBuffer(gson.toJson(map), CharsetUtil.UTF_8));
   // response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json;
   // charset=UTF-8");
-  // response.headers().set("server", "cloudarg");
+  // response.headers().set("server", Constants.HEADER_APP_NAME);
   // ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
   //// ctx.close();
   // }
@@ -141,7 +141,7 @@ public class ResponseUtil {
   // status,
   // Unpooled.copiedBuffer(data));
   // response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
-  // response.headers().set("server", "cloudarg");
+  // response.headers().set("server", Constants.HEADER_APP_NAME);
   // ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
   // ctx.close();
   // }

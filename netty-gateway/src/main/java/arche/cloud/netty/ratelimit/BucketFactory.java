@@ -11,7 +11,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 public class BucketFactory {
-  private static Cache<String, Bucket> bucketCache;
+  private static final Cache<String, Bucket> bucketCache;
 
   static {
     bucketCache = CacheBuilder.newBuilder()

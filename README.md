@@ -25,6 +25,17 @@
     "forbidden_roles": [
       "banned"
     ],
+    "white_list": [
+      "127.0.0.1"
+    ],
+    "black_list": [
+      "127.0.0.1"
+    ],
+    "mock": true,
+    "mock_content": "",
+    "mock_content_url": "",
+    "cors": true,
+    "wrapper": false,
     "backends": [
       {
         "id": 1,
@@ -96,6 +107,7 @@
 }
 
 ```
+
 ## 功能
 
 ### 规则
@@ -104,7 +116,6 @@
 - 模糊匹配的会从后往前匹配，匹配最长字段。
 - 如果 route 没有 / 则为精确匹配。
 - wrapper 封装情况下，如果原始结果为 json，则正常封装，其他类型返回 base64 结果。
-
 
 ### 权限验证
 
@@ -157,7 +168,6 @@ module.exports = options => {
 "t" + hashCode(ticket) + crc32(ticket) =  serialize(User)
 ```
 
-
 ### route
 
 用户 path 缓存 key 规则如下， value 是 Route 的 Json 序列化
@@ -174,15 +184,23 @@ module.exports = options => {
 
 当 route 配置更新的时候，将同时删除相关 的 r 和 p 。 （后台管理实现，当前尚未实现。）
 
-
 ## 限流
 
 通过指定 rate limit 进行限流，当前实现的是 单节点（cloudarg 的节点）限流。所以这里的限流特指单服务器。
 
+## 黑白名单
+
+可以同时指定黑白名单。
+可以指定 cidr，每行一条规则
+
+首先判断先白名单。
+白名单如果有访问权限，再判断黑名单。
+
+
 
 ## TODO
 
-- rate limit （系统级，route 级） 
+- rate limit （系统级）
 - 黑名单，白名单（系统级，route 级）
 - 增加新功能：各种 pattern
 - 结果缓存

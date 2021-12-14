@@ -5,6 +5,7 @@ import arche.cloud.netty.db.MysqlDataSource;
 import arche.cloud.netty.db.RedisUtil;
 import arche.cloud.netty.exceptions.*;
 import arche.cloud.netty.model.*;
+import com.google.common.base.Strings;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -173,8 +174,8 @@ public class DataUtil {
   /**
    * 将用户访问的 route 加入缓存
    *
-   * @param key
-   * @param route
+   * @param key redis 的 key
+   * @param route 路由
    */
   private static void saveRouteToRedis(String key, Route route) {
     String userValue = GsonUtil.serialize(route);
@@ -211,6 +212,14 @@ public class DataUtil {
           route.setWrapper(rs.getInt("wrapper"));
           route.setCors(rs.getInt("cors"));
           route.setRateLimit(rs.getInt("rate_limit"));
+          String blackList = rs.getString("black_list");
+          String whiteList = rs.getString("white_list");
+          if (!Strings.isNullOrEmpty(blackList)) {
+            route.setBlackList(blackList.split("[\r?\n\s*]+"));
+          }
+          if (!Strings.isNullOrEmpty(whiteList)) {
+            route.setWhiteList(whiteList.split("[\r?\n\s*]+"));
+          }
         }
         rs.close();
       } catch (SQLException ex) {

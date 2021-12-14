@@ -1,15 +1,19 @@
 package arche.cloud.netty.handler;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import arche.cloud.netty.exceptions.Responsable;
+import arche.cloud.netty.model.Constants;
 import arche.cloud.netty.model.DataKeys;
 import arche.cloud.netty.model.Route;
 import arche.cloud.netty.model.UserRequest;
 import arche.cloud.netty.ratelimit.BucketFactory;
+import arche.cloud.netty.utils.CIDR6Util;
 import arche.cloud.netty.utils.DataUtil;
 import arche.cloud.netty.utils.ResponseUtil;
 import io.github.bucket4j.Bucket;
@@ -26,8 +30,40 @@ public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
     req.retain();
     UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
 
+    InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+    InetAddress inetaddress = socketAddress.getAddress();
+    String ipAddress = inetaddress.getHostAddress(); // IP address of client
+
     try {
       Route route = DataUtil.getRouteInfo(uq.getPath());
+
+      String[] whiteList = route.getWhiteList();
+      boolean isInWhiteList;
+      if (whiteList != null && whiteList.length > 0) {
+        isInWhiteList = CIDR6Util.inRange(ipAddress, whiteList);
+        if (!isInWhiteList) {
+          String logInfo = uq.logInfo();
+          logger.error("Client [{}] not in white list: {}", ipAddress, logInfo);
+          ResponseUtil.wrap(ctx, HttpResponseStatus.NOT_ACCEPTABLE,
+              Map.of(Constants.HEADER_REQUEST_ID, uq.getRequestId()), "Not acceptable.");
+          req.release();
+          return;
+        }
+      }
+
+      String[] blackList = route.getBlackList();
+      // if (blackList != null && blackList.length > 0 && !isInWhiteList) {
+      if (blackList != null && blackList.length > 0) {
+        boolean isInBlackList = CIDR6Util.inRange(ipAddress, blackList);
+        if (isInBlackList) {
+          String logInfo = uq.logInfo();
+          logger.error("Client [{}] in black list: {}", ipAddress, logInfo);
+          ResponseUtil.wrap(ctx, HttpResponseStatus.NOT_ACCEPTABLE,
+              Map.of(Constants.HEADER_REQUEST_ID, uq.getRequestId()), "Not acceptable.");
+          req.release();
+          return;
+        }
+      }
 
       int rateLimit = route.getRateLimit();
       if (rateLimit > 0) {
@@ -37,7 +73,7 @@ public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
           String logInfo = uq.logInfo();
           logger.error("Out of qps[{}]: {}", rateLimit, logInfo);
           ResponseUtil.wrap(ctx, HttpResponseStatus.TOO_MANY_REQUESTS,
-              Map.of("request_id", uq.getRequestId()), "Too many request.");
+              Map.of(Constants.HEADER_REQUEST_ID, uq.getRequestId()), "Too many request.");
           req.release();
           return;
         }

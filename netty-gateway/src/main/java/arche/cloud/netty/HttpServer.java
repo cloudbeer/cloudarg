@@ -1,6 +1,8 @@
 package arche.cloud.netty;
 
 import arche.cloud.netty.config.ConfigFactory;
+import arche.cloud.netty.utils.CIDR6Util;
+import arche.cloud.netty.utils.CIDRUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -10,6 +12,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 public class HttpServer {
 
@@ -50,6 +53,15 @@ public class HttpServer {
             System.out.println(ConfigFactory.config.getDescription());
             System.out.println("----------------------");
             System.out.println();
+
+            // System.out.println(CIDRUtil.toCidr("5.10.64.0", "5.10.254.255"));
+            // System.out.println(Arrays.toString(CIDR6Util.toBigIntRange("5.10.64.0")));
+            // System.out.println(Arrays.toString(CIDR6Util.toStringRange("192:168:0:1:0:0:0:0/120")));
+            // System.out.println(Arrays.toString(CIDR6Util.toBigIntRange("0::0:0:0:0:1/128")));
+            // System.out.println(
+            // CIDR6Util.inRange("5.10.128.1", "5::10:128:0:0:0"));
+            // System.out.println(CIDR6Util.inRange("192.168.0.1",
+            // "192:168:0:1:0:0:0:0/120"));
 
             f.channel().closeFuture().sync();
         } finally {
