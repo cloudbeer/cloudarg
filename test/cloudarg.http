@@ -1,16 +1,25 @@
 
 # @hostCloudarling = http://127.0.0.1:7301
 # @hostCloudarg = http://localhost:7302
-@hostGateway = http://localhost:8089
+# @hostGateway = http://localhost:8089
 
 @hostCloudarling = http://47.114.92.162:7301
 @hostCloudarg = http://47.114.92.162:7302
-# @hostGateway = http://47.114.92.162:8089
+@hostGateway = http://47.114.92.162:8089
 
 @ticketAdmin=eyJvcGVuX2lkIjoiOWU4ZDVlMzMtOGIyMC00NTQ0LWIxYTAtMmVjMTY2MWJkNTU2IiwiZXhwaXJlc19pbiI6MTE1NjYyMDgyMzAwLCJzaWduIjoiMmJjOWI0YmI5YjgxOGU2YzE2MGYwMDNkNDc1NGI4MjFmMTJjODM1OTJhNmVmMDNlNmQ5NTRhY2NhZjA0ZDI1ZCJ9
 
 @ticketNormal=eyJvcGVuX2lkIjoiMzdmOWU3ZWMtZjEyZS00ZjAyLTkzMDctZGU1MWVkNTk0YTRkIiwiZXhwaXJlc19pbiI6MTE1NjYyMDgyMzAwLCJzaWduIjoiMjBlNGEwMDFjYjcwYzI5YjU5ODZiNmE2ZmQwYzIwNzhkNjAxZTM0MjQ4MjUwN2M4NTFiODMzM2ZmZmZmMTFkOSJ9
 
+
+### 同时获取
+
+GET {{hostGateway}}/cloudarling/_/admin/account/list
+Authorization: bearer {{ticketAdmin}}
+
+###
+GET {{hostGateway}}/cloudarling/_/admin/role/list
+Authorization: bearer {{ticketAdmin}}
 
 ### 获取
 GET {{hostGateway}}/cloudarling/_/open/account/info
