@@ -9,10 +9,10 @@ pipeline {
           } else if (env.MR_SOURCE_BRANCH ==~ /.*/ ) {
             env.ARTIFACT_VERSION = "mr-${env.MR_RESOURCE_ID}-${env.GIT_COMMIT_SHORT}"
           } else {
-            env.ARTIFACT_VERSION = "${env.BRANCH_NAME.replace('/', '-')}-${env.GIT_COMMIT_SHORT}"
+            // env.ARTIFACT_VERSION = "${env.BRANCH_NAME.replace('/', '-')}-${env.GIT_COMMIT_SHORT}"
+            env.ARTIFACT_VERSION = "devel"
           }
         }
-
       }
     }
     stage('检出') {
