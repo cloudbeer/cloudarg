@@ -1,6 +1,3 @@
-
-
-
 croot=$(pwd)
 appName="cloudarg"
 cr="arche-docker.pkg.coding.net/arche.cloud/arche-cloud"

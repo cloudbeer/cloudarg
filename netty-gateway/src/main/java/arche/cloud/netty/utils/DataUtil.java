@@ -174,7 +174,7 @@ public class DataUtil {
   /**
    * 将用户访问的 route 加入缓存
    *
-   * @param key redis 的 key
+   * @param key   redis 的 key
    * @param route 路由
    */
   private static void saveRouteToRedis(String key, Route route) {
@@ -200,6 +200,8 @@ public class DataUtil {
     try (Connection conn = MysqlDataSource.getConnection()) {
       Route route = null;
       String sqlSelectRoute = "select * from v_route_project where path_hash=CRC32(?)";
+      System.err.println(sqlSelectRoute);
+      System.err.println(path);
 
       try (PreparedStatement psRoute = conn.prepareStatement(sqlSelectRoute)) {
         psRoute.setString(1, path);

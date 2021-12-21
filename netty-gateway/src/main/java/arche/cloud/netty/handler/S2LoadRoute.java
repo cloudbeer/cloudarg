@@ -82,6 +82,8 @@ public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
       ctx.channel().attr(DataKeys.API_INFO).set(route);
       ctx.fireChannelRead(req);
     } catch (Responsable e) {
+      // e.printStackTrace();
+      logger.error("Catched errors: {}", uq.logInfo());
       e.echo(ctx, uq.getRequestId(), uq.logInfo(), false);
       req.release();
     }
