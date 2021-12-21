@@ -9,7 +9,7 @@ docker stop $appName
 
 docker run --rm -d \
 	--pull=always \
-	-p 8089:8089
+	-p 8089:8089 \
 	--name $appName \
 	$cr/$appName:$ver \
   java -jar /app/cloudarg.jar
