@@ -13,6 +13,8 @@ description: |-
 port: 8089
 accountUrl: ${ACCOUNT_URL:-http://47.114.92.162:7301/inner/self/info}
 ticketSecret: ${TICKET_SECRET:-iloveyou}
+# timeout 10s
+timeout: ${TIMEOUT:-5}
 
 # Mysql Config
 mysql:

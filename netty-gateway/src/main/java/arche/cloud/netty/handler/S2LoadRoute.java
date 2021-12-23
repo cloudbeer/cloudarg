@@ -25,6 +25,18 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
   Logger logger = LoggerFactory.getLogger(S2LoadRoute.class);
 
+  // @Override
+  // public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+
+  // logger.error("pipeline error", cause);
+  // if (cause instanceof ReadTimeoutException) {
+  // UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
+  // ResponseUtil.wrap(ctx, HttpResponseStatus.REQUEST_TIMEOUT,
+  // Map.of(Constants.HEADER_REQUEST_ID, uq.getRequestId()), "Request timeout.");
+  // }
+  // ctx.close();
+  // }
+
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
     req.retain();
@@ -36,6 +48,13 @@ public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     try {
       Route route = DataUtil.getRouteInfo(uq.getPath());
+
+      if (route.getMock() > 0) {
+        CommonHandler.echoMockContent(ctx, req, route);
+        req.release();
+        return;
+      }
+      // System.err.println(route);
 
       String[] whiteList = route.getWhiteList();
       boolean isInWhiteList;

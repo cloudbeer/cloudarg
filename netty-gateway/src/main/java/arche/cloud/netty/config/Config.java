@@ -10,6 +10,7 @@ public class Config {
     private Mysql mysql;
     private String accountUrl;
     private String ticketSecret;
+    private int timeout;
 
     public String toString() {
         return GsonUtil.serialize(this);
@@ -71,5 +72,13 @@ public class Config {
 
     public void setTicketSecret(String ticketSecret) {
         this.ticketSecret = ticketSecret;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 }

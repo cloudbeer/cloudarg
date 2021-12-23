@@ -200,8 +200,8 @@ public class DataUtil {
     try (Connection conn = MysqlDataSource.getConnection()) {
       Route route = null;
       String sqlSelectRoute = "select * from v_route_project where path_hash=CRC32(?)";
-      System.err.println(sqlSelectRoute);
-      System.err.println(path);
+      // System.err.println(sqlSelectRoute);
+      // System.err.println(path);
 
       try (PreparedStatement psRoute = conn.prepareStatement(sqlSelectRoute)) {
         psRoute.setString(1, path);
@@ -222,6 +222,10 @@ public class DataUtil {
           if (!Strings.isNullOrEmpty(whiteList)) {
             route.setWhiteList(whiteList.split("[\r?\n\s*]+"));
           }
+          route.setMock(rs.getShort("mock"));
+          route.setMockContent(rs.getString("mock_content"));
+          route.setMockContentType(rs.getString("mock_content_type"));
+          route.setMockContentUrl(rs.getString("mock_content_url"));
         }
         rs.close();
       } catch (SQLException ex) {

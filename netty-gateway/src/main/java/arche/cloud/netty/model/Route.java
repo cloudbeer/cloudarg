@@ -184,6 +184,53 @@ public class Route {
         this.whiteList = whiteList;
     }
 
+    /** 是否mock */
+    private Short mock;
+
+    public Short getMock() {
+        return this.mock;
+    }
+
+    public void setMock(Short _mock) {
+        this.mock = _mock;
+    }
+
+    /** mock 数据类型 */
+    @SerializedName("mock_content_type")
+    private String mockContentType;
+
+    public String getMockContentType() {
+        return this.mockContentType;
+    }
+
+    public void setMockContentType(String _mockContentType) {
+        this.mockContentType = _mockContentType;
+    }
+
+    /** Mock内容 */
+    @SerializedName("mock_content")
+    private String mockContent;
+
+    public String getMockContent() {
+        return this.mockContent;
+    }
+
+    public void setMockContent(String _mockContent) {
+        this.mockContent = _mockContent;
+    }
+
+    /** mock地址 */
+    @SerializedName("mock_content_url")
+    private String mockContentUrl;
+
+    public String getMockContentUrl() {
+        return this.mockContentUrl;
+    }
+
+    public void setMockContentUrl(String _mockContentUrl) {
+        this.mockContentUrl = _mockContentUrl;
+    }
+
     private List<Backend> backends;
 
     public List<Backend> getBackends() {

@@ -22,7 +22,7 @@ public class MysqlDataSource {
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-        System.err.println(config);
+        // System.err.println(config);
         ds = new HikariDataSource(config);
     }
 

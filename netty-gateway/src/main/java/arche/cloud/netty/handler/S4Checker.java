@@ -18,11 +18,17 @@ import io.netty.handler.codec.http.FullHttpRequest;
 public class S4Checker extends SimpleChannelInboundHandler<FullHttpRequest> {
     Logger logger = LoggerFactory.getLogger(S4Checker.class);
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.error("pipeline error", cause);
-        ctx.close();
-    }
+    // @Override
+    // public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+
+    // logger.error("pipeline error", cause);
+    // if (cause instanceof ReadTimeoutException) {
+    // UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
+    // ResponseUtil.wrap(ctx, HttpResponseStatus.REQUEST_TIMEOUT,
+    // Map.of(Constants.HEADER_REQUEST_ID, uq.getRequestId()), "Request timeout.");
+    // }
+    // ctx.close();
+    // }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
