@@ -1,8 +1,8 @@
 package arche.cloud.netty;
 
+import java.net.InetSocketAddress;
+
 import arche.cloud.netty.config.ConfigFactory;
-import arche.cloud.netty.utils.CIDR6Util;
-import arche.cloud.netty.utils.CIDRUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -10,9 +10,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-
-import java.net.InetSocketAddress;
-import java.util.Arrays;
 
 public class HttpServer {
 
@@ -23,11 +20,9 @@ public class HttpServer {
     }
 
     public static void main(String[] args) throws Exception {
-        ConfigFactory.load();
-        init();
-    }
 
-    public static void init() throws Exception {
+        ConfigFactory.load();
+
         int port = ConfigFactory.config.getPort();
         new HttpServer(port).run();
     }

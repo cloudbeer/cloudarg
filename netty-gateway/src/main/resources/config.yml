@@ -1,0 +1,26 @@
+# Base info
+name: Cloudarg
+description: |-
+  ©  ____ _                 _                 
+   / ____| |               | |                
+  | |    | | ___  _   _  __| | __ _ _ __ __ _ 
+  | |    | |/ _ \| | | |/ _` |/ _` | '__/ _` |
+  | |____| | (_) | |_| | (_| | (_| | | | (_| |
+   \_____|_|\___/ \__,_|\__,_|\__,_|_|  \__, |
+                                         __/ |
+                                        |___/
+
+port: 8089
+accountUrl: ${ACCOUNT_URL:-http://47.114.92.162:7301/inner/self/info}
+ticketSecret: ${TICKET_SECRET:-iloveyou}
+
+# Mysql Config
+mysql:
+  host: ${DB_HOST:-47.114.92.162}
+  port: ${DB_PORT:-3306}
+  username: ${DB_USER:-cloudark}
+  password: ${DB_PASSWORD:-"P@ssword123"}
+  database: ${DB_DATABASE:-"cloudark"}
+
+# redis config
+redisUri: ${REDIS_URL:-redis://zhwell@127.0.0.1:8020/10}

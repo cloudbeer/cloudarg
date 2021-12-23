@@ -11,5 +11,5 @@
     "password": "P@ssword123",
     "database": "cloudark"
   },
-  "redisUri": "redis://zhwell@127.0.0.1:8020/10"
+  "redisUri": "redis://zhwell@172.17.0.1:8020/10"
 }

@@ -1,5 +1,7 @@
 package arche.cloud.netty.config;
 
+import arche.cloud.netty.utils.GsonUtil;
+
 public class Config {
 
     private String name;
@@ -8,6 +10,10 @@ public class Config {
     private Mysql mysql;
     private String accountUrl;
     private String ticketSecret;
+
+    public String toString() {
+        return GsonUtil.serialize(this);
+    }
 
     public String getRedisUri() {
         return redisUri;
