@@ -49,7 +49,6 @@ public class S4Checker extends SimpleChannelInboundHandler<FullHttpRequest> {
                 e.echo(ctx, uq.getRequestId(), uq.logInfo(), false);
                 return;
             }
-
         }
 
         RpcClient rpcClient = new RpcClient();

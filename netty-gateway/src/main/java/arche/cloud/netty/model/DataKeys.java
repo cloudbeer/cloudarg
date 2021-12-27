@@ -19,4 +19,6 @@ public class DataKeys {
 
         public static final AttributeKey<User> USER_INFO = AttributeKey.newInstance("userInfo");
 
+        public static final AttributeKey<String> BACKEND = AttributeKey.newInstance("backend");
+
 }

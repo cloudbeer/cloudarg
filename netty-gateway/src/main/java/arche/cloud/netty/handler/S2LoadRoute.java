@@ -48,12 +48,7 @@ public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     try {
       Route route = DataUtil.getRouteInfo(uq.getPath());
-
-      if (route.getMock() > 0) {
-        CommonHandler.echoMockContent(ctx, req, route);
-        req.release();
-        return;
-      }
+      // System.err.println(route);
       // System.err.println(route);
 
       String[] whiteList = route.getWhiteList();
@@ -90,12 +85,19 @@ public class S2LoadRoute extends SimpleChannelInboundHandler<FullHttpRequest> {
 
         if (!bucket.tryConsume(1)) {
           String logInfo = uq.logInfo();
-          logger.error("Out of qps[{}]: {}", rateLimit, logInfo);
+          logger.info("Out of qps[{}]: {}", rateLimit, logInfo);
+
           ResponseUtil.wrap(ctx, HttpResponseStatus.TOO_MANY_REQUESTS,
               Map.of(Constants.HEADER_REQUEST_ID, uq.getRequestId()), "Too many request.");
           req.release();
           return;
         }
+      }
+
+      if (route.getMock() > 0) {
+        CommonHandler.echoMockContent(ctx, req, route);
+        req.release();
+        return;
       }
 
       ctx.channel().attr(DataKeys.API_INFO).set(route);

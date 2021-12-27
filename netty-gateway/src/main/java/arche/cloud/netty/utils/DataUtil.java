@@ -213,7 +213,6 @@ public class DataUtil {
           route.setFullPath(rs.getString("full_path"));
           route.setWrapper(rs.getInt("wrapper"));
           route.setCors(rs.getInt("cors"));
-          route.setRateLimit(rs.getInt("rate_limit"));
           String blackList = rs.getString("black_list");
           String whiteList = rs.getString("white_list");
           if (!Strings.isNullOrEmpty(blackList)) {
@@ -226,6 +225,11 @@ public class DataUtil {
           route.setMockContent(rs.getString("mock_content"));
           route.setMockContentType(rs.getString("mock_content_type"));
           route.setMockContentUrl(rs.getString("mock_content_url"));
+          route.setRateLimit(rs.getInt("rate_limit"));
+          route.setFailover(rs.getShort("failover"));
+          route.setFailoverContent(rs.getString("failover_content"));
+          route.setFailoverContentType(rs.getString("failover_content_type"));
+          route.setFailoverUrl(rs.getString("failover_url"));
         }
         rs.close();
       } catch (SQLException ex) {

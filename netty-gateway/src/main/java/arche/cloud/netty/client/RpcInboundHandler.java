@@ -2,7 +2,12 @@ package arche.cloud.netty.client;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import arche.cloud.netty.model.Backend;
 import arche.cloud.netty.model.Constants;
 import arche.cloud.netty.model.DataKeys;
 import arche.cloud.netty.model.Route;
@@ -19,9 +24,29 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 
 public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
 
+  Logger logger = LoggerFactory.getLogger(RpcInboundHandler.class);
+
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    cause.printStackTrace();
+    // cause.printStackTrace();
+    logger.error("exceptionCaught", cause);
+
+    // ChannelHandlerContext parentCtx =
+    // ctx.channel().attr(DataKeys.PARENT_CONTEXT).get();
+    // UserRequest uq = ctx.channel().attr(DataKeys.REQUEST_INFO).get();
+    // Backend backend = ctx.channel().attr(DataKeys.BACKEND).get();
+    // logger.error("access", backend.toString());
+
+    // if (parentCtx != null) {
+    // String reqId = "unknown";
+    // if (uq != null) {
+    // reqId = uq.getRequestId();
+    // }
+    // ResponseUtil.wrap(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+    // Map.of(Constants.HEADER_REQUEST_ID, reqId), cause.getMessage());
+    // // parentCtx.close();
+    // }
+
     ctx.close();
   }
 

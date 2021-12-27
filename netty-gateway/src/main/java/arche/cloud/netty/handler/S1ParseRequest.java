@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import arche.cloud.netty.model.Constants;
 import arche.cloud.netty.model.DataKeys;
+import arche.cloud.netty.model.Route;
 import arche.cloud.netty.model.UserRequest;
 import arche.cloud.netty.utils.RequestUtil;
 import arche.cloud.netty.utils.ResponseUtil;
@@ -30,9 +31,13 @@ public class S1ParseRequest extends SimpleChannelInboundHandler<FullHttpRequest>
         logger.error("pipeline timeout", cause);
         if (cause instanceof ReadTimeoutException) {
             if (reqId != null) {
-                ResponseUtil.wrap(ctx, HttpResponseStatus.GATEWAY_TIMEOUT,
-                        Map.of(Constants.HEADER_REQUEST_ID, reqId), "Gateway Timeout.");
-
+                Route route = ctx.channel().attr(DataKeys.API_INFO).get();
+                if (route != null) {
+                    System.err.println(route);
+                    // logger.error("backend timeout", route.toString());
+                    ResponseUtil.wrap(ctx, HttpResponseStatus.GATEWAY_TIMEOUT,
+                            Map.of(Constants.HEADER_REQUEST_ID, reqId), "Gateway Timeout.");
+                }
             }
         }
         ctx.close();
@@ -42,7 +47,7 @@ public class S1ParseRequest extends SimpleChannelInboundHandler<FullHttpRequest>
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) {
 
         String url = req.uri();
-        logger.info(url);
+        // logger.info(url);
         if ("/metrics".equals(url)) {
             CommonHandler.echoMetrics(ctx, req);
             ctx.close();

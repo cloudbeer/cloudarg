@@ -160,6 +160,50 @@ public class Route {
         this.rateLimit = rateLimit;
     }
 
+    /** 降级方法 */
+    private Short failover;
+
+    public Short getFailover() {
+        return this.failover;
+    }
+
+    public void setFailover(Short _failover) {
+        this.failover = _failover;
+    }
+
+    /** 降级MIME */
+    private String failoverContentType;
+
+    public String getFailoverContentType() {
+        return this.failoverContentType;
+    }
+
+    public void setFailoverContentType(String _failoverContentType) {
+        this.failoverContentType = _failoverContentType;
+    }
+
+    /** 降级内容 */
+    private Object failoverContent;
+
+    public Object getFailoverContent() {
+        return this.failoverContent;
+    }
+
+    public void setFailoverContent(Object _failoverContent) {
+        this.failoverContent = _failoverContent;
+    }
+
+    /** 降级Url */
+    private String failoverUrl;
+
+    public String getFailoverUrl() {
+        return this.failoverUrl;
+    }
+
+    public void setFailoverUrl(String _failoverUrl) {
+        this.failoverUrl = _failoverUrl;
+    }
+
     /** 黑名单 */
     @SerializedName("black_list")
     private String[] blackList;
