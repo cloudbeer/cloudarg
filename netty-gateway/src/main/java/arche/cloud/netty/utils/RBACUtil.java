@@ -26,16 +26,15 @@ public class RBACUtil {
    * @param authorizedRoles route 允许的角色
    * @param forbiddenRoles  route 禁止的角色
    */
-  public static void pass(String[] myRoles, String[] authorizedRoles, String[] forbiddenRoles) throws Responsable {
+  public static boolean pass(String[] myRoles, String[] authorizedRoles, String[] forbiddenRoles) throws Responsable {
     if (myRoles == null) {
-      throw new NotAuthorized();
+      return false;
     }
     if (forbiddenRoles != null) {
       for (String r : forbiddenRoles) {
         if (Arrays.asList(myRoles).contains(r)) {
           // Arrays.stream(myRoles).noneMatch(r::equals);
-          // return false;
-          throw new NotAuthorized();
+          return false;
         }
       }
     }
@@ -50,8 +49,6 @@ public class RBACUtil {
       }
     }
 
-    if (!passed) {
-      throw new NotAuthorized();
-    }
+    return passed;
   }
 }

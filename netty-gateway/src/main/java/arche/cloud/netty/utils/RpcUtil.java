@@ -11,15 +11,15 @@ public class RpcUtil {
         throw new IllegalStateException("Utility class");
     }
 
-    public static <V> void access(
-            String host,
-            int port,
-            GenericFutureListener<? extends Future<? super Channel>> listener) {
+    // public static <V> void access(
+    // String host,
+    // int port,
+    // GenericFutureListener<? extends Future<? super Channel>> listener) {
 
-        ColdChannelPool.BOOTSTRAP.remoteAddress(host, port);
+    // ColdChannelPool.BOOTSTRAP.remoteAddress(host, port);
 
-        final FixedChannelPool pool = ColdChannelPool.POOLMAP.get(host);
-        Future<Channel> future = pool.acquire();
-        future.addListener(listener);
-    }
+    // final FixedChannelPool pool = ColdChannelPool.POOLMAP.get(host);
+    // Future<Channel> future = pool.acquire();
+    // future.addListener(listener);
+    // }
 }

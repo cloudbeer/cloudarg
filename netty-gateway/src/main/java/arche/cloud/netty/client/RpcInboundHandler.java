@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.CharsetUtil;
 
 public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
 
@@ -64,6 +65,11 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     CharSequence contentType = "application/json";
     HttpResponseStatus status = HttpResponseStatus.OK;
+
+    // System.out.println("\n\n\n------------------" + uq.getQuery() +
+    // "-------------");
+    // System.out.println(status);
+
     if (msg instanceof HttpResponse response) {
       status = response.status();
       if (!response.headers().isEmpty()) {
@@ -80,9 +86,9 @@ public class RpcInboundHandler extends SimpleChannelInboundHandler<HttpObject> {
     }
 
     if (msg instanceof HttpContent content) {
-      // System.out.println("this is content");
       if (StringUtil.isTextContentType(contentType.toString())) {
         ByteBuf lastContent = content.content();
+
         // System.out.println(lastContent.toString(CharsetUtil.UTF_8));
 
         if (apiInfo.getCors() == 1) {

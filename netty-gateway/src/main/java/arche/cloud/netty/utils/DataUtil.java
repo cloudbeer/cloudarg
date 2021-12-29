@@ -72,6 +72,9 @@ public class DataUtil {
   }
 
   public static User getUser(String ticket) throws Responsable {
+    if (StringUtil.isBlank(ticket)) {
+      throw new ParameterRequired("ticket required.");
+    }
     String ticketKey = StringUtil.hashKey("t", ticket);
     try {
       User user = getUserFromRedis(ticketKey);

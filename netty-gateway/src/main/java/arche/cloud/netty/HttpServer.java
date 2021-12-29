@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import arche.cloud.netty.config.ConfigFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -35,7 +36,8 @@ public class HttpServer {
             bootstrap.group(bossGroup, workerGroup)
                     .handler(new LoggingHandler(LogLevel.DEBUG))
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new HttpServerInitializer());
+                    .childHandler(new HttpServerInitializer())
+                    .childOption(ChannelOption.AUTO_READ, true);
 
             ChannelFuture f = bootstrap.bind(new InetSocketAddress(port)).sync();
             System.out.println("Server start up on port : " + port);

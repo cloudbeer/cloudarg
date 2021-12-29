@@ -8,6 +8,7 @@ import java.util.Map;
 import arche.cloud.netty.model.Constants;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -38,6 +39,35 @@ public class ResponseUtil {
     }
   }
 
+  public static void wrap(Channel ctx,
+      HttpResponseStatus status,
+      Map<String, String> headers,
+      Object data) {
+    FullHttpResponse response = new DefaultFullHttpResponse(
+        HttpVersion.HTTP_1_1,
+        status);
+    mixinHeaders(response, headers);
+    String contentType = headers.get("content-type");
+    if (contentType == null) {
+      contentType = "text/plain";
+    }
+    if (status == HttpResponseStatus.OK) {
+      wrapResponse(response, data, contentType.contains("json"));
+    } else {
+      Map<String, Object> result = new HashMap<>();
+      result.put("service", Constants.HEADER_APP_NAME);
+      result.put("success", false);
+      Map<String, Object> error = new HashMap<>();
+      error.put("code", status.code());
+      error.put("message", data);
+      result.put("error", error);
+      response.content().writeBytes(Unpooled.copiedBuffer(GsonUtil.serialize(result), CharsetUtil.UTF_8));
+    }
+    response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
+    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    // ctx.close();
+  }
+
   public static void wrap(ChannelHandlerContext ctx,
       HttpResponseStatus status,
       Map<String, String> headers,
@@ -64,7 +94,7 @@ public class ResponseUtil {
     }
     response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    ctx.close();
+    // ctx.close();
   }
 
   private static void wrapResponse(FullHttpResponse response, Object data, boolean isJson) {
@@ -91,6 +121,22 @@ public class ResponseUtil {
     response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
   }
 
+  public static void pass(Channel channel,
+      HttpResponseStatus status,
+      Map<String, String> headers,
+      ByteBuf data) {
+    FullHttpResponse response = new DefaultFullHttpResponse(
+        HttpVersion.HTTP_1_1,
+        status,
+        Unpooled.copiedBuffer(data));
+    mixinHeaders(response, headers);
+    // response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
+    response.headers().set("server", Constants.HEADER_APP_NAME);
+
+    channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    // channel.close();
+  }
+
   public static void pass(ChannelHandlerContext ctx,
       HttpResponseStatus status,
       Map<String, String> headers,
@@ -104,7 +150,7 @@ public class ResponseUtil {
     response.headers().set("server", Constants.HEADER_APP_NAME);
 
     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    ctx.close();
+    // ctx.close();
   }
 
   // public static void echo(ChannelHandlerContext ctx,

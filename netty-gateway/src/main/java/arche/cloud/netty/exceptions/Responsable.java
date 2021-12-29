@@ -51,7 +51,7 @@ public class Responsable extends Exception {
 
   public void echo(ChannelHandlerContext ctx, String requestId, String pathInfo, boolean cors) {
 
-    logger.error("request-id:[{}] - {} - {}", requestId, pathInfo, msg);
+    logger.error("{} - {}", pathInfo, msg);
     HashMap<String, String> headers = new HashMap<>();
     headers.put(Constants.HEADER_REQUEST_ID, requestId);
     if (cors) {

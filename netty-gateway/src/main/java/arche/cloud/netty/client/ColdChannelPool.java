@@ -1,28 +1,33 @@
 package arche.cloud.netty.client;
 
+import java.net.InetSocketAddress;
+import java.time.LocalDateTime;
+
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.pool.AbstractChannelPoolMap;
+import io.netty.channel.pool.ChannelHealthChecker;
 import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.pool.ChannelPoolMap;
 import io.netty.channel.pool.FixedChannelPool;
+import io.netty.channel.pool.FixedChannelPool.AcquireTimeoutAction;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 
 public class ColdChannelPool {
-    public static ChannelPoolMap<String, FixedChannelPool> POOLMAP;
+    public static ChannelPoolMap<InetSocketAddress, FixedChannelPool> POOLMAP;
     public static final Bootstrap BOOTSTRAP = new Bootstrap();
     static {
         BOOTSTRAP.group(new NioEventLoopGroup());
         BOOTSTRAP.channel(NioSocketChannel.class);
-
         POOLMAP = new AbstractChannelPoolMap<>() {
 
             @Override
-            protected FixedChannelPool newPool(String key) {
+            protected FixedChannelPool newPool(InetSocketAddress key) {
                 ChannelPoolHandler handler = new ChannelPoolHandler() {
                     /**
                      * 使用完channel需要释放才能放入连接池
@@ -31,10 +36,11 @@ public class ColdChannelPool {
                     @Override
                     public void channelReleased(Channel ch) throws Exception {
                         // 刷新管道里的数据
-//                        ch.writeAndFlush(Unpooled.EMPTY_BUFFER); // flush掉所有写回的数据
-//                        ColdChannelPool.BOOTSTRAP.attr(ColdChannelPool.PARENT_CONTEXT, null);
-//                        ColdChannelPool.BOOTSTRAP.attr(ColdChannelPool.API_INFO, null);
-//                        System.out.println("channelReleased......");
+                        // ch.writeAndFlush(Unpooled.EMPTY_BUFFER); // flush掉所有写回的数据
+                        // ColdChannelPool.BOOTSTRAP.attr(ColdChannelPool.PARENT_CONTEXT, null);
+                        // ColdChannelPool.BOOTSTRAP.attr(ColdChannelPool.API_INFO, null);
+                        // System.out.println("channelReleased......" + ch);
+
                     }
 
                     /**
@@ -51,17 +57,27 @@ public class ColdChannelPool {
                     }
 
                     /**
-                     *  获取连接池中的channel
+                     * 获取连接池中的channel
                      *
                      */
                     @Override
                     public void channelAcquired(Channel ch) throws Exception {
-//                        System.out.println(LocalDateTime.now() + " - channelAcquired......");
-//                        System.out.println(ch.attr(ColdChannelPool.PARENT_CONTEXT));
+                        // System.out.println("channelAcquired......" + ch);
+                        // System.out.println(ch.attr(ColdChannelPool.PARENT_CONTEXT));
                     }
                 };
 
-                return new FixedChannelPool(BOOTSTRAP, handler, 50); //单个host连接池大小
+                return new FixedChannelPool(BOOTSTRAP,
+                        handler,
+                        50);
+                // return new FixedChannelPool(BOOTSTRAP,
+                // handler,
+                // ChannelHealthChecker.ACTIVE,
+                // AcquireTimeoutAction.FAIL,
+                // 1000,
+                // 50,
+                // 10,
+                // false);
             }
         };
     }

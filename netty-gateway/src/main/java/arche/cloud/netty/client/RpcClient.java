@@ -1,5 +1,6 @@
 package arche.cloud.netty.client;
 
+import java.net.InetSocketAddress;
 import arche.cloud.netty.exceptions.Internal;
 import arche.cloud.netty.exceptions.Responsable;
 import arche.cloud.netty.model.*;
@@ -8,6 +9,7 @@ import arche.cloud.netty.utils.RequestUtil;
 import arche.cloud.netty.utils.StringUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.pool.FixedChannelPool;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -21,6 +23,7 @@ import io.netty.util.concurrent.FutureListener;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,92 +81,76 @@ public class RpcClient {
     // TODO document why this constructor is empty
   }
 
-  private void accessMockUrlContent() {
-    try {
-      String mockUrl = route.getMockContentUrl();
-      if (StringUtil.isBlank(mockUrl)) {
-        throw new Internal("Mock url required. ");
-      }
-      URL urlMock = new URL(mockUrl);
-      String host = urlMock.getHost();
-      int port = urlMock.getPort();
-      String schema = urlMock.getProtocol();
-      if (port <= 0) {
-        if ("http".equals(schema)) {
-          port = 80;
-        } else if ("https".equals(schema)) {
-          port = 443;
-        }
-      }
-      ColdChannelPool.BOOTSTRAP.remoteAddress(host, port);
-      final FixedChannelPool pool = ColdChannelPool.POOLMAP.get(host + ":" + port);
-      Future<Channel> future = pool.acquire();
-      future.addListener((FutureListener<Channel>) channelFuture -> {
-        if (future.isSuccess()) {
-          Channel channel = future.getNow();
-          channel.attr(DataKeys.PARENT_CONTEXT).set(parentContext);
-          channel.attr(DataKeys.API_INFO).set(route);
-          channel.attr(DataKeys.REQUEST_INFO).set(userRequest);
+  private void accessBackend(Channel channel, Backend backend) {
 
-          FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, mockUrl);
-          request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-          request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP);
-          channel.write(request);
-          channel.writeAndFlush(Unpooled.EMPTY_BUFFER);
-          pool.release(channel);
-        }
-      });
-    } catch (Responsable e) {
-      e.echo(parentContext, userRequest.getRequestId(), userRequest.logInfo(), false);
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
+    channel.attr(DataKeys.PARENT_CONTEXT).set(parentContext);
+    channel.attr(DataKeys.API_INFO).set(route);
+    channel.attr(DataKeys.REQUEST_INFO).set(userRequest);
+
+    String query = userRequest.getQuery();
+    String queryPath = userRequest.getPath();
+    String routePath = route.getFullPath();
+    String rpcUrl = backend.toUrl();
+    if (routePath.endsWith("/")) {
+      rpcUrl += queryPath.substring(routePath.length());
     }
+    if (query != null) {
+      rpcUrl += "?" + userRequest.getQuery();
+    }
+
+    System.out.println(":" + channel + "--" + rpcUrl);
+
+    // logger.info("remote-url: {}", rpcUrl);
+    parentContext.channel().attr(DataKeys.BACKEND).set(rpcUrl);
+
+    FullHttpRequest request = RequestUtil.copyRequest(parentRequest, rpcUrl);
+
+    request.headers().set(HttpHeaderNames.HOST, backend.getHost() + ":" + backend.getPort());
+    // request.headers().set(HttpHeaderNames.CONNECTION,
+    // HttpHeaderValues.KEEP_ALIVE);
+    request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP);
+    if (user != null) {
+      request.headers().set("__cloudaring_user__", user.toHeaderString());
+    }
+    request.headers().set("__request_id__", userRequest.getRequestId());
+
+    channel.write(request);
+    channel.flush();
   }
 
   public void accessBackend() {
-    // if (route.getMock() == 2) {
-    // accessMockUrlContent();
-    // return;
-    // }
     try {
       Backend backend = DataUtil.chooseBackend(route, userRequest);
       String host = backend.getHost();
       int port = backend.getPort();
       ColdChannelPool.BOOTSTRAP.remoteAddress(host, port);
-      final FixedChannelPool pool = ColdChannelPool.POOLMAP.get(host + ":" + port);
+
+      FixedChannelPool pool = ColdChannelPool.POOLMAP.get(new InetSocketAddress(host, port));
+      // System.out.println("pool ---- " + pool);
       Future<Channel> future = pool.acquire();
+      // ChannelFuture future = ColdChannelPool.BOOTSTRAP.connect(host,
+      // port).syncUninterruptibly();
+
+      // if (!future.isSuccess()) {
+      // logger.error("connection error", future.cause());
+      // } else {
+      // Channel channel = future.channel();
+      // accessBackend(channel, backend);
+      // }
+      // Future<Channel> future = pool.acquire().syncUninterruptibly();
+      // if (!future.isSuccess()) {
+      // logger.error("connection error", future.cause());
+      // } else {
+      // Channel channel = future.getNow();
+      // accessBackend(channel, backend);
+      // pool.release(channel);
+      // }
+
       future.addListener((FutureListener<Channel>) channelFuture -> {
-        if (future.isSuccess()) {
-          Channel channel = future.getNow();
-          channel.attr(DataKeys.PARENT_CONTEXT).set(parentContext);
-          channel.attr(DataKeys.API_INFO).set(route);
-          channel.attr(DataKeys.REQUEST_INFO).set(userRequest);
-
-          String query = userRequest.getQuery();
-          String queryPath = userRequest.getPath();
-          String routePath = route.getFullPath();
-          String rpcUrl = backend.toUrl();
-          if (routePath.endsWith("/")) {
-            rpcUrl += queryPath.substring(routePath.length());
-          }
-          if (query != null) {
-            rpcUrl += "?" + userRequest.getQuery();
-          }
-
-          FullHttpRequest request = RequestUtil.copyRequest(parentRequest, rpcUrl);
-          System.err.println(rpcUrl);
-          channel.attr(DataKeys.BACKEND).set(rpcUrl);
-
-          request.headers().set(HttpHeaderNames.HOST, host + ":" + port);
-          request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-          request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP);
-          if (user != null) {
-            request.headers().set("__cloudaring_user__", user.toHeaderString());
-          }
-          request.headers().set("__request_id__", userRequest.getRequestId());
-
-          channel.write(request);
-          channel.writeAndFlush(Unpooled.EMPTY_BUFFER);
+        if (channelFuture.isSuccess()) {
+          // Channel channel = channelFuture.get(1, TimeUnit.SECONDS);
+          Channel channel = channelFuture.getNow();
+          accessBackend(channel, backend);
           pool.release(channel);
         }
       });
