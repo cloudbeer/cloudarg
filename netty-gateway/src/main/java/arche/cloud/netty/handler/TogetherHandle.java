@@ -59,7 +59,6 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, Object obj) throws InterruptedException {
-
     if (!(obj instanceof FullHttpRequest)) {
       logger.error("typeerror", "Incoming Message Is Not FullHttpRequest");
       return;
@@ -69,11 +68,12 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
     // req.retain();
 
     UserRequest uq = RequestUtil.parse(req);
+    // System.err.println(uq);
     reqId = UUID.randomUUID().toString();
     uq.setRequestId(reqId);
     try {
       String url = req.uri();
-      logger.info("current url: " + uq);
+      // logger.info("current url: " + uq);
 
       // 这里是通用不受控 url，/favicon.ico 和 /metrics
       if (!CommonHandler.assertPathThrough(ctx, reqId, url)) {
@@ -121,9 +121,10 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
         rpcUrl += "?" + uq.getQuery();
       }
 
-      logger.info(rpcUrl);
+      // logger.info(query);
 
       FullHttpRequest request = RequestUtil.copyRequest(req, rpcUrl);
+
       // req.release();
 
       request.headers().set(HttpHeaderNames.HOST, backend.getHost() + ":" + backend.getPort());
@@ -143,7 +144,7 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
         sslCtx = null;
       }
 
-      System.out.println("SSL: " + sslCtx);
+      // System.out.println("SSL: " + sslCtx);
 
       EventLoopGroup group = new NioEventLoopGroup();
       try {
@@ -156,8 +157,8 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
         outboundChannel = b.connect(backend.getHost(), backend.getPort()).sync().channel();
         outboundChannel.writeAndFlush(request);
         outboundChannel.closeFuture().sync();
-        System.out.println("in:" + inboundChannel);
-        System.out.println("out:" + outboundChannel);
+        // System.out.println("in:" + inboundChannel);
+        // System.out.println("out:" + outboundChannel);
       } finally {
         // Shut down executor threads to exit.
         group.shutdownGracefully();
@@ -206,7 +207,7 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
     if (outboundChannel != null) {
-      System.out.println("Close outbound");
+      // System.out.println("Close outbound");
       closeOnFlush(outboundChannel);
     }
   }

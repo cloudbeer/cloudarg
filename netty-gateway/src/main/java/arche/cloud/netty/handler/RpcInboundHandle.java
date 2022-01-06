@@ -82,7 +82,9 @@ public class RpcInboundHandle extends ChannelInboundHandlerAdapter {
         lastContent.release();
       } else {
         // TODO 非文本返回尚未实现。
-        ResponseUtil.wrap(inboundChannel, status, headers, "非文本返回尚未实现。");
+        headers.put("content-type", contentType.toString());
+        ResponseUtil.pass(inboundChannel, status, headers, content.content());
+        // ResponseUtil.wrap(inboundChannel, status, headers, "非文本返回尚未实现。");
       }
     }
     ctx.close();

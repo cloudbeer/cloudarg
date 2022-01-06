@@ -58,7 +58,7 @@ public class RequestUtil {
 
         URI uri = URI.create(url);
         rtn.setPath(uri.getPath());
-        rtn.setQuery(uri.getQuery());
+        rtn.setQuery(uri.getRawQuery());
 
         return rtn;
     }

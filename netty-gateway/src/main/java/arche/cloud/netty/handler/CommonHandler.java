@@ -162,6 +162,11 @@ public class CommonHandler {
     }
     response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
     response.headers().set(Constants.HEADER_REQUEST_ID, reqId);
+    if (route.getCors() == 1) {
+      response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+      response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS, "*");
+      response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, "*");
+    }
     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     return true;
   }
