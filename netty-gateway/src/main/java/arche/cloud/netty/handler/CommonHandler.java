@@ -131,6 +131,12 @@ public class CommonHandler {
       if (StringUtil.isBlank(content)) {
         contentType = "Blank Content.";
       }
+
+      if (route.getWrapper() == 1) {
+        contentType = "application/json";
+        content = "{\"service\":\"cloudarg\",\"success\":true,\"data\":" + content + "}";
+      }
+
       response.content().writeCharSequence(content, CharsetUtil.UTF_8);
 
     } else if (route.getMock() == 2) {
