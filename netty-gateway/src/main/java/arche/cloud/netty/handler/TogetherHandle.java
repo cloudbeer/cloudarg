@@ -84,6 +84,8 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
 
       Route route = DataUtil.getRouteInfo(uq.getPath());
 
+      // System.err.println(route);
+
       if (!CommonHandler.assertFirewall(ctx, route, reqId)) {
         // req.release();
         ctx.close();
@@ -121,7 +123,7 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
         rpcUrl += "?" + uq.getQuery();
       }
 
-      // logger.info(query);
+      logger.info(query);
 
       FullHttpRequest request = RequestUtil.copyRequest(req, rpcUrl);
 

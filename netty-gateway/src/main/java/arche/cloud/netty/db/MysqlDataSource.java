@@ -12,6 +12,7 @@ public class MysqlDataSource {
 
     static {
         HikariConfig config = new HikariConfig();
+
         config.setJdbcUrl("jdbc:mysql://" +
                 ConfigFactory.config.getMysql().getHost() + ":" +
                 ConfigFactory.config.getMysql().getPort() + "/" +

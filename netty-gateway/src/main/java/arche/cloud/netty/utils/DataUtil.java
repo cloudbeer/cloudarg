@@ -81,6 +81,8 @@ public class DataUtil {
       if (user != null) {
         return user;
       }
+      // System.err.println(ConfigFactory.config.getAccountUrl() + "?ticket=" +
+      // ticket);
       user = getUserRemote(ConfigFactory.config.getAccountUrl() + "?ticket=" + ticket);
       if (user != null) {
         saveUserToRedis(ticketKey, user);

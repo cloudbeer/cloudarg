@@ -11,18 +11,18 @@ description: |-
                                         |___/
 
 port: 8089
-accountUrl: ${ACCOUNT_URL:-http://47.114.92.162:7301/inner/self/info}
+accountUrl: ${ACCOUNT_URL:-http://127.0.0.1:7301/inner/self/info}
 ticketSecret: ${TICKET_SECRET:-iloveyou}
 # timeout 10s
 timeout: ${TIMEOUT:-5}
 
 # Mysql Config
 mysql:
-  host: ${DB_HOST:-47.114.92.162}
+  host: ${DB_HOST:-127.0.0.1}
   port: ${DB_PORT:-3306}
-  username: ${DB_USER:-cloudark}
-  password: ${DB_PASSWORD:-"P@ssword123"}
-  database: ${DB_DATABASE:-"cloudark"}
+  username: ${DB_USERNAME:-root}
+  password: ${DB_PASSWORD:-"AbCd12#$"}
+  database: ${DB_DATABASE:-"dims"}
 
 # redis config
 redisUri: ${REDIS_URL:-redis://zhwell@127.0.0.1:8020/10}

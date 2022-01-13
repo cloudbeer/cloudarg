@@ -1,53 +1,34 @@
-use rand::Rng;
-use std::cmp::Ordering;
-use std::io;
+#![deny(warnings)]
 
-fn main() {
-    const THREE_HOURS_IN_SECONDS: u32 = 60 * 60 * 3;
-    let x = b'A';
+use std::convert::Infallible;
 
-    let x = {
-        let x = 3;
-        x + 1
-    };
-    println!(
-        "Hello, world! 你好，世界。{} - {}",
-        THREE_HOURS_IN_SECONDS, x
-    );
-    return;
+use hyper::service::{make_service_fn, service_fn};
+use hyper::{Body, Request, Response, Server};
 
-    let secret_number = rand::thread_rng().gen_range(1..101);
-    // println!("秘密数字是：{}", secret_number);
+async fn hello(_: Request<Body>) -> Result<Response<Body>, Infallible> {
+    Ok(Response::new(Body::from("Hello World!")))
+}
 
-    println!("猜下我的数字？");
-    loop {
-        let mut guess = String::new();
-        match io::stdin().read_line(&mut guess) {
-            Ok(_) => {
-                // println!("输入完成，你输入了 {} 个字节", n);
-                // println!("输入的是：{}", guess);
-            }
-            Err(_) => {
-                println!("兄弟，你错误了,123。");
-            }
-        }
-        let guess: u32 = match guess.trim().parse() {
-            Ok(num) => num,
-            Err(_) => {
-                println!("输入错误, 请继续猜：");
-                continue;
-            }
-        };
-        match guess.cmp(&secret_number) {
-            Ordering::Less => println!("太小了，请继续猜："),
-            Ordering::Equal => {
-                println!("Bingo");
-                break;
-            }
-            Ordering::Greater => println!("太大了，请继续猜："),
-        }
-    }
-    println!("搞定");
+#[tokio::main]
+pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pretty_env_logger::init();
 
-    // println!("你输入的是{}", guess);
+    // For every connection, we must make a `Service` to handle all
+    // incoming HTTP requests on said connection.
+    let make_svc = make_service_fn(|_conn| {
+        // This is the `Service` that will handle the connection.
+        // `service_fn` is a helper to convert a function that
+        // returns a Response into a `Service`.
+        async { Ok::<_, Infallible>(service_fn(hello)) }
+    });
+
+    let addr = ([127, 0, 0, 1], 3000).into();
+
+    let server = Server::bind(&addr).serve(make_svc);
+
+    println!("Listening on http://{}", addr);
+
+    server.await?;
+
+    Ok(())
 }
