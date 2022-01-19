@@ -11,6 +11,7 @@ public class Config {
     private String accountUrl;
     private String ticketSecret;
     private int timeout;
+    private String redisUri;
 
     public String toString() {
         return GsonUtil.serialize(this);
@@ -23,8 +24,6 @@ public class Config {
     public void setRedisUri(String redisUri) {
         this.redisUri = redisUri;
     }
-
-    private String redisUri;
 
     public String getName() {
         return name;

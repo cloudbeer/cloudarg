@@ -1,0 +1,31 @@
+# Base info
+name: Tencent Cloud Rust Gateway
+port: 8089
+# description: 
+
+description: |-
+    ©          ＿＿                ____ _                 _ 
+           ／＞ 🎀  >            / ____| |               | |                
+           |  👁  👁 l            | |    | | ___  _   _  __| | __ _ _ __ __ _ 
+          ／;ミ_x ミ            | |    | |/ _ \| | | |/ _` |/ _` | '__/ _` |
+         /      |               | |____| | (_) | |_| | (_| | (_| | | | (_| |
+        /  ヽ   ﾉ                \_____|_|\___/ \__,_|\__,_|\__,_|_|  \__, |
+        │  |  | |                                                      __/ |
+    ／￣|  |  | |              == 不会做饭的歌手不是好程序员 ==       |___/
+    | (￣ヽ＿ヽ_)_)           🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+    ＼二つ                    ---------------------------------------------
+
+account_url: ${ACCOUNT_URL:http://127.0.0.1:7301/inner/self/info}
+ticket_secret: ${TICKET_SECRET:iloveyou}
+timeout: ${TIMEOUT:5}
+
+# Mysql Config
+mysql:
+  host: ${DB_HOST:127.0.0.1}
+  port: ${DB_PORT:3306}
+  username: ${DB_USERNAME:root}
+  password: ${DB_PASSWORD:AbCd12#$}
+  database: ${DB_DATABASE:dims}
+
+# redis config
+redis_uri: ${REDIS_URL:redis://zhwell@127.0.0.1:8020/10}
