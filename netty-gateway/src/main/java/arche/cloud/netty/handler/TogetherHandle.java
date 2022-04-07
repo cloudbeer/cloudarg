@@ -73,7 +73,7 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
     uq.setRequestId(reqId);
     try {
       String url = req.uri();
-      // logger.info("current url: " + uq);
+      logger.info("Incoming url: {}", url);
 
       // 这里是通用不受控 url，/favicon.ico 和 /metrics
       if (!CommonHandler.assertPathThrough(ctx, reqId, url)) {
@@ -123,9 +123,11 @@ public class TogetherHandle extends ChannelInboundHandlerAdapter {
         rpcUrl += "?" + uq.getQuery();
       }
 
-      logger.info(query);
+      // logger.info(query);
 
       FullHttpRequest request = RequestUtil.copyRequest(req, rpcUrl);
+
+      logger.info("Backend url: {}", rpcUrl);
 
       // req.release();
 

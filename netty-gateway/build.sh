@@ -1,7 +1,12 @@
+ver=$1
+if [ -z $1 ]; then
+  ver=devel
+fi
+
 croot=$(pwd)
 appName="cloudarg"
 cr="arche-docker.pkg.coding.net/arche.cloud/arche-cloud"
-ver="devel"
+# ver="devel"
 
 
 echo "Build docker image for Dev of latest..."

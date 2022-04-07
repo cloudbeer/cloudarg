@@ -1,11 +1,11 @@
 
 # @hostCloudarling = http://127.0.0.1:7301
 # @hostCloudarg = http://localhost:7302
-# @hostGateway = http://localhost:8089
+@hostGateway = http://localhost:8089
 
 @hostCloudarling = http://47.114.92.162:7301
 @hostCloudarg = http://47.114.92.162:7302
-@hostGateway = http://47.114.92.162:8089
+# @hostGateway = http://47.114.92.162:8089
 
 @ticketAdmin=eyJvcGVuX2lkIjoiOWU4ZDVlMzMtOGIyMC00NTQ0LWIxYTAtMmVjMTY2MWJkNTU2IiwiZXhwaXJlc19pbiI6MTE1NjYyMDgyMzAwLCJzaWduIjoiMmJjOWI0YmI5YjgxOGU2YzE2MGYwMDNkNDc1NGI4MjFmMTJjODM1OTJhNmVmMDNlNmQ5NTRhY2NhZjA0ZDI1ZCJ9
 
@@ -13,9 +13,14 @@
 
 
 ### 同时获取
-
 GET {{hostGateway}}/cloudarling/_/admin/account/list
+Requestid: abc
 Authorization: bearer {{ticketAdmin}}
+
+
+### Ticket as querystring
+GET {{hostGateway}}/cloudarling/_/admin/account/list?x=y&__ticket={{ticketAdmin}}&ab=c
+
 
 ###
 GET {{hostGateway}}/cloudarling/_/admin/role/list

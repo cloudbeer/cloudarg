@@ -1,11 +1,16 @@
-# cloudarg
+# cloudarg 网关
+
+当前分别使用了 netty 和 rust 进行了实现。
+
+netty 完成度较高，基本可以投入使用，rust 版本正在实现中。
+
+此项目需要依赖 cloudarling 项目。
 
 ## 数据
 
 路由数据：
 
 ```json
-
 {
   "lang": "zh-CN",
   "service": "cloudarg-service",
@@ -19,18 +24,10 @@
     "version": "v1",
     "path": "/list-route",
     "full_path": "/cloudarg/v1/list-route",
-    "authorized_roles": [
-      "admin"
-    ],
-    "forbidden_roles": [
-      "banned"
-    ],
-    "white_list": [
-      "127.0.0.1"
-    ],
-    "black_list": [
-      "127.0.0.1"
-    ],
+    "authorized_roles": ["admin"],
+    "forbidden_roles": ["banned"],
+    "white_list": ["127.0.0.1"],
+    "black_list": ["127.0.0.1"],
     "mock": true,
     "mock_content": "",
     "mock_content_url": "",
@@ -87,7 +84,6 @@
 用户数据
 
 ```json
-
 {
   "lang": "zh-CN",
   "service": "cloudarling",
@@ -100,12 +96,9 @@
     "nick": "啤酒邱",
     "mobile": "13000000000",
     "email": "chuchur@qq.com",
-    "roles": [
-      "admin"
-    ]
+    "roles": ["admin"]
   }
 }
-
 ```
 
 ## 功能
@@ -128,7 +121,15 @@
 
 ## 参数变化
 
-为后端服务增加了 2 个入参
+网关传输登录信息的方法：
+
+按照如下方法将 ticket 数据加入 HTTP 的 header 中：
+
+```
+"Authorization": "bearer " + ticket
+```
+
+通过 网关后，后端服务增加了 2 个入参。
 
 参数放在了在 header 中。
 
@@ -142,7 +143,7 @@ __request_id__: 8cc4a0a2-11ef-4985-9435-111d70398b2a
 
 ```js
 const cloudoll = require("cloudoll");
-module.exports = options => {
+module.exports = (options) => {
   const auth = async (ctx, next) => {
     const userHeader = ctx.headers["__cloudaring_user__"];
     if (userHeader) {
@@ -154,9 +155,9 @@ module.exports = options => {
     }
     ctx.request_id = ctx.headers["__request_id__"];
     await next();
-  }
+  };
   return auth;
-}
+};
 ```
 
 ## 缓存 redis 规则
@@ -196,8 +197,6 @@ module.exports = options => {
 
 首先判断先白名单。
 白名单如果有访问权限，再判断黑名单。
-
-
 
 ## TODO
 

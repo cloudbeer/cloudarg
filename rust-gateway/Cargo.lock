@@ -53,6 +53,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "cloudarg"
+version = "0.1.0"
+dependencies = [
+ "http",
+ "hyper",
+ "hyper-tls",
+ "once_cell",
+ "redis",
+ "regex",
+ "serde",
+ "serde_json",
+ "tokio",
+ "uuid",
+ "yaml-rust",
+]
+
+[[package]]
 name = "combine"
 version = "4.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -639,18 +656,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-gateway"
-version = "0.1.0"
-dependencies = [
- "http",
- "hyper",
- "hyper-tls",
- "once_cell",
- "redis",
- "regex",
- "tokio",
- "yaml-rust",
-]
+name = "ryu"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73b4b750c782965c211b42f022f59af1fbceabdd026623714f104152f1ec149f"
 
 [[package]]
 name = "schannel"
@@ -689,6 +698,37 @@ checksum = "e90dd10c41c6bfc633da6e0c659bd25d31e0791e5974ac42970267d59eba87f7"
 dependencies = [
  "core-foundation-sys",
  "libc",
+]
+
+[[package]]
+name = "serde"
+version = "1.0.135"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2cf9235533494ea2ddcdb794665461814781c53f19d87b76e571a1c35acbad2b"
+dependencies = [
+ "serde_derive",
+]
+
+[[package]]
+name = "serde_derive"
+version = "1.0.135"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8dcde03d87d4c973c04be249e7d8f0b35db1c848c487bd43032808e59dd8328d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "serde_json"
+version = "1.0.78"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d23c1ba4cf0efd44be32017709280b32d1cea5c3f1275c3b6d9e8bc54f758085"
+dependencies = [
+ "itoa 1.0.1",
+ "ryu",
+ "serde",
 ]
 
 [[package]]
@@ -894,6 +934,15 @@ dependencies = [
  "idna",
  "matches",
  "percent-encoding",
+]
+
+[[package]]
+name = "uuid"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+dependencies = [
+ "getrandom",
 ]
 
 [[package]]

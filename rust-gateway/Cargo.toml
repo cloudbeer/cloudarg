@@ -1,5 +1,5 @@
 [package]
-name = "rust-gateway"
+name = "cloudarg"
 version = "0.1.0"
 edition = "2021"
 authors = ["Cloudbeer"]
@@ -15,3 +15,6 @@ yaml-rust = "0.4"
 regex = "1.5.4"
 redis = { version = "0.21", features = [ "cluster"] }
 hyper-tls = "0.5.0"
+uuid = { version = "0.8", features = ["v4"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

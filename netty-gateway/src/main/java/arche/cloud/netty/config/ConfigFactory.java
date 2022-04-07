@@ -15,7 +15,7 @@ public class ConfigFactory {
 
     public static void load() throws IOException {
 
-        InputStream is = ConfigFactory.class.getClassLoader().getResourceAsStream("config.yml");
+        InputStream is = ConfigFactory.class.getClassLoader().getResourceAsStream("config.yaml");
         assert is != null;
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];

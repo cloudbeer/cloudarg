@@ -1,6 +1,6 @@
 docker stop redis
 
-docker run --rm -d \
+docker run  -d \
     -e REDIS_PASSWORD=zhwell \
     -p 8020:6379 \
     --name redis \
